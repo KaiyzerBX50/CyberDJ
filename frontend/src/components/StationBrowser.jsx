@@ -170,7 +170,7 @@ export const StationBrowser = ({ onSelectStation, currentStation, isOpen, onOpen
                             : 'none'
                         }}
                       >
-                        {station.favicon ? (
+                        {station.favicon && station.favicon.startsWith('https') ? (
                           <img 
                             src={station.favicon} 
                             alt=""
@@ -183,7 +183,7 @@ export const StationBrowser = ({ onSelectStation, currentStation, isOpen, onOpen
                         ) : null}
                         <Radio 
                           className="w-5 h-5 text-white/40" 
-                          style={{ display: station.favicon ? 'none' : 'block' }}
+                          style={{ display: station.favicon && station.favicon.startsWith('https') ? 'none' : 'block' }}
                         />
                       </div>
                       
