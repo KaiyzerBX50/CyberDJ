@@ -1,7 +1,7 @@
 # CyberDeck DJ - Digital Futuristic DJ Turntable
 
 ## Original Problem Statement
-Build a digital futuristic DJ turntable with all the knobs and lights, picking up hip hop and R&B radio stations with music-reactive interfaces. Hybrid design: turntables with tonearms + large central visualizer + Pioneer-style EQ knobs — compact, screen-filling layout.
+Build a digital futuristic DJ turntable with all the knobs and lights, picking up hip hop and R&B radio stations with music-reactive interfaces. Hybrid design: turntables with tonearms + large central visualizer + Pioneer-style EQ knobs — compact, screen-filling layout with proper spacing.
 
 ## Architecture
 - **Frontend**: React + Tailwind CSS + Framer Motion + Web Audio API
@@ -11,23 +11,24 @@ Build a digital futuristic DJ turntable with all the knobs and lights, picking u
 
 ## Features Implemented
 
-### Layout (Screen-Filling, Non-Scrolling)
-- [x] Top: Dual turntables (190px) with tonearms + spectrum visualizer + crossfader
-- [x] Bottom: 3-column — Deck A | Center Mixer | Deck B
+### Layout
+- [x] Proper vertical spacing — turntables not bunched at top, breathing room throughout
+- [x] Visualizer vertically centered between turntables (minHeight matches turntable 190px)
+- [x] 3-column bottom: Deck A | Center Mixer | Deck B
+- [x] Pads expand (flex-1) to fill available space — no empty gaps
 - [x] Fits 1920x800 viewport without scrolling
-- [x] No placeholders when idle — shows "NO SIGNAL", "KEY ---", "--:--"
 
 ### Per Deck (A & B):
-- [x] Vinyl turntable with rotating record and animated tonearm
+- [x] Vinyl turntable (190px) with rotating record and animated tonearm
 - [x] BPM detection, waveform visualization
 - [x] Transport: CUE, PLAY/PAUSE, SYNC
 - [x] Loop: 1, 2, 4, 8, 16, 32
 - [x] Pad Modes: HOT CUE, BEAT LOOP, SLIP LOOP, BEAT JUMP
-- [x] 8 Hot Cue Pads
+- [x] 8 Hot Cue Pads (flex-expanding)
 - [x] Pitch slider with key lock
 - [x] FX Rack: ECHO, REVERB, FILTER, DRY/WET
-- [x] Sampler: HORN, SIREN, DROP, AIRHORN trigger pads
-- [x] Track Info Bar: key detection, elapsed/remaining time, mini level meters, genre tag
+- [x] Sampler: HORN, SIREN, DROP, AIRHORN
+- [x] Track Info Bar: key detection, elapsed/remaining time, mini level meters
 
 ### Center Mixer:
 - [x] MASTER VU meters + MSTR/BOOTH knobs
@@ -39,15 +40,15 @@ Build a digital futuristic DJ turntable with all the knobs and lights, picking u
 - [x] Keyboard shortcuts (Space, A/B, S, R)
 - [x] Backend CORS proxy for audio streaming
 
-## Testing (Iteration 8)
-- Frontend: 100% (all features verified)
-- Backend: 100%
+## Testing (Iteration 9) - 100% pass
+- Frontend: All features verified
+- Backend: All endpoints working
 
 ## Date Log
 - 2026-03-06: v1-v5: MVP through hybrid design
-- 2026-03-06: v6: Compact non-scrolling layout
-- 2026-03-06: v7: Scaled up + center mixer + pad modes
+- 2026-03-06: v6-v7: Compact layout + center mixer + pad modes
 - 2026-03-06: v8: Sampler section + track info bar
+- 2026-03-06: v9: Layout spacing fix — centered visualizer, distributed vertical space, pads expand to fill
 
 ## Backlog
 - P1: Refine recording (save/download mixes)
