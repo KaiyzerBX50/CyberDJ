@@ -246,6 +246,10 @@ const DeckPanel = ({ deck, deckId }) => {
   const [padMode, setPadMode] = useState('HOT CUE');
   const [keyLock, setKeyLock] = useState(false);
   const bpm = deck.isPlaying ? Math.floor(85 + deck.analyserData.slice(0, 8).reduce((a, b) => a + b, 0) / 32) : null;
+  const [activeSampler, setActiveSampler] = useState(null);
+  const elapsed = deck.isPlaying ? Math.floor(performance.now() / 1000) % 600 : 0;
+  const keys = ['Am', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Bm', 'Ab'];
+  const detectedKey = deck.isPlaying ? keys[Math.floor(deck.analyserData[10] / 32)] : null;
 
   const padModes = ['HOT CUE', 'BEAT LOOP', 'SLIP LOOP', 'BEAT JUMP'];
 
@@ -348,6 +352,70 @@ const DeckPanel = ({ deck, deckId }) => {
           <Knob label="FILTER" value={50} color="#9900FF" size={28} />
           <Knob label="DRY/WET" value={50} color="#39FF14" size={28} />
         </div>
+      </div>
+
+      {/* Sampler */}
+      <div className="shrink-0">
+        <span className="text-[6px] text-white/25 block mb-0.5">SAMPLER</span>
+        <div className="grid grid-cols-4 gap-1">
+          {[
+            { id: 1, label: 'HORN', color: '#FF6600' },
+            { id: 2, label: 'SIREN', color: '#FF003C' },
+            { id: 3, label: 'DROP', color: '#9900FF' },
+            { id: 4, label: 'AIRHORN', color: '#FFD700' },
+          ].map(s => (
+            <button
+              key={s.id}
+              data-testid={`sampler-${s.id}-${deckId.toLowerCase()}`}
+              onClick={() => setActiveSampler(activeSampler === s.id ? null : s.id)}
+              className="py-1.5 rounded text-[7px] font-bold uppercase tracking-wider transition-all"
+              style={{
+                background: activeSampler === s.id ? s.color + '40' : '#111',
+                border: `1px solid ${activeSampler === s.id ? s.color : '#222'}`,
+                color: activeSampler === s.id ? s.color : '#3a3a3a',
+                boxShadow: activeSampler === s.id ? `0 0 8px ${s.color}30` : 'none',
+              }}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Track Info Bar */}
+      <div className="flex items-center justify-between px-2 py-1.5 rounded bg-black/40 border border-white/5 shrink-0 mt-auto" data-testid={`track-info-${deckId.toLowerCase()}`}>
+        {deck.isPlaying ? (
+          <>
+            <div className="flex items-center gap-2">
+              <div className="px-1.5 py-px rounded text-[8px] font-mono font-bold" style={{ background: c + '20', color: c, border: `1px solid ${c}30` }}>
+                {detectedKey}
+              </div>
+              <span className="text-[7px] font-mono text-white/30">{deck.currentStation?.tags?.[0] || 'HIP HOP'}</span>
+            </div>
+            <div className="flex items-center gap-3 text-[8px] font-mono">
+              <span className="text-white/50">{Math.floor(elapsed / 60)}:{(elapsed % 60).toString().padStart(2, '0')}</span>
+              <div className="flex gap-0.5">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="w-1 h-2.5 rounded-sm" style={{
+                    background: deck.analyserData[i * 16] > 120 ? c : '#1a1a1a',
+                    opacity: 0.8,
+                  }} />
+                ))}
+              </div>
+              <span className="text-white/30">-{Math.floor((600 - elapsed) / 60)}:{((600 - elapsed) % 60).toString().padStart(2, '0')}</span>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[7px] font-mono text-white/15">KEY ---</span>
+            <div className="flex gap-0.5">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="w-1 h-2 rounded-sm bg-white/5" />
+              ))}
+            </div>
+            <span className="text-[7px] font-mono text-white/15">--:--</span>
+          </div>
+        )}
       </div>
     </div>
   );
