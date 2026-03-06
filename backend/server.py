@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -10,6 +11,8 @@ from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 import httpx
+import asyncio
+from urllib.parse import unquote
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -234,6 +237,52 @@ async def remove_favorite(stationuuid: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Favorite not found")
     return {"message": "Favorite removed", "stationuuid": stationuuid}
+
+@api_router.get("/stream")
+async def stream_audio(url: str = Query(..., description="Radio stream URL to proxy")):
+    """
+    Proxy radio stream to bypass CORS restrictions
+    """
+    decoded_url = unquote(url)
+    logger.info(f"Proxying stream: {decoded_url}")
+    
+    async def stream_generator():
+        try:
+            async with httpx.AsyncClient(timeout=None, follow_redirects=True) as client:
+                async with client.stream("GET", decoded_url, headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "*/*",
+                    "Connection": "keep-alive"
+                }) as response:
+                    if response.status_code != 200:
+                        logger.error(f"Stream error: {response.status_code}")
+                        return
+                    
+                    async for chunk in response.aiter_bytes(chunk_size=8192):
+                        yield chunk
+        except Exception as e:
+            logger.error(f"Stream proxy error: {str(e)}")
+            return
+    
+    # Determine content type based on URL
+    content_type = "audio/mpeg"
+    if ".ogg" in decoded_url.lower():
+        content_type = "audio/ogg"
+    elif ".aac" in decoded_url.lower() or ".m4a" in decoded_url.lower():
+        content_type = "audio/aac"
+    elif ".flac" in decoded_url.lower():
+        content_type = "audio/flac"
+    
+    return StreamingResponse(
+        stream_generator(),
+        media_type=content_type,
+        headers={
+            "Accept-Ranges": "bytes",
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive"
+        }
+    )
 
 # Status endpoints for health monitoring
 @api_router.post("/status", response_model=StatusCheck)

@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 export const useAudio = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStation, setCurrentStation] = useState(null);
@@ -109,7 +111,11 @@ export const useAudio = () => {
         setIsPlaying(false);
       }
       
-      audioRef.current.src = station.url_resolved || station.url;
+      // Use proxy URL to bypass CORS
+      const streamUrl = station.url_resolved || station.url;
+      const proxyUrl = `${BACKEND_URL}/api/stream?url=${encodeURIComponent(streamUrl)}`;
+      
+      audioRef.current.src = proxyUrl;
       audioRef.current.volume = 1; // Volume controlled by gain node
       
       connectNodes();
