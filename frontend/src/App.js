@@ -29,10 +29,10 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
           </div>
           <div className="absolute top-1.5 left-1/2 w-1 h-3 -translate-x-1/2 rounded-full" style={{ background: c, boxShadow: `0 0 6px ${c}` }} />
         </motion.div>
-        {/* Tonearm — contained inside the turntable box */}
-        <motion.div className="absolute -right-1 top-[16%] origin-top-right" animate={{ rotate: arm }} transition={{ type: 'spring', stiffness: 80, damping: 15 }}>
-          <div className="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full" style={{ background: 'linear-gradient(145deg, #333, #1a1a1a)', boxShadow: '0 2px 5px rgba(0,0,0,0.5)' }} />
-          <div className="w-[90px] h-1 rounded-full" style={{ background: 'linear-gradient(to bottom, #555, #333)' }} />
+        {/* Tonearm — fully inside the turntable */}
+        <motion.div className="absolute right-4 top-[8%] origin-[calc(100%-4px)_4px]" animate={{ rotate: arm }} transition={{ type: 'spring', stiffness: 80, damping: 15 }}>
+          <div className="absolute -top-1.5 right-0 w-6 h-6 rounded-full" style={{ background: 'linear-gradient(145deg, #333, #1a1a1a)', boxShadow: '0 2px 5px rgba(0,0,0,0.5)' }} />
+          <div className="w-[75px] h-1 rounded-full" style={{ background: 'linear-gradient(to bottom, #555, #333)' }} />
           <div className="absolute left-0 top-0 w-4 h-2 -translate-x-3" style={{ background: 'linear-gradient(to bottom, #444, #222)', clipPath: 'polygon(100% 0, 100% 100%, 0 70%, 0 30%)' }}>
             <div className={`absolute bottom-0.5 left-0.5 w-1 h-1 rounded-full ${isPlaying ? 'bg-[#39FF14]' : 'bg-[#333]'}`} style={{ boxShadow: isPlaying ? '0 0 4px #39FF14' : 'none' }} />
           </div>
@@ -144,88 +144,83 @@ const CenterMixer = ({ deckA, deckB }) => {
   const masterLevel = Math.max(levelA, levelB);
 
   return (
-    <div className="flex flex-col gap-1 px-1 py-1.5 rounded-lg bg-[#0c0c0c] border border-white/8 w-[130px] shrink-0" data-testid="center-mixer">
-      {/* Master section */}
+    <div className="flex flex-col gap-1.5 px-2 py-2 rounded-lg bg-[#0c0c0c] border border-white/8 w-[180px] shrink-0" data-testid="center-mixer">
+      {/* Master section — prominent */}
       <div className="text-center">
-        <span className="text-[6px] font-mono text-white/30 uppercase tracking-widest">MASTER</span>
-        <div className="flex justify-center gap-0.5 mt-0.5">
+        <span className="text-[8px] font-['Orbitron'] text-white/40 uppercase tracking-widest">MASTER</span>
+        <div className="flex justify-center gap-1.5 mt-1">
           {['L', 'R'].map(ch => (
             <div key={ch} className="flex flex-col items-center">
               <div className="flex flex-col-reverse gap-px">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="w-2 h-1 rounded-sm transition-all" style={{
-                    background: masterLevel > i / 8 ? (i < 5 ? '#39FF14' : i < 7 ? '#FFD700' : '#FF003C') : '#151515',
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="w-3 h-1.5 rounded-sm transition-all" style={{
+                    background: masterLevel > i / 12 ? (i < 7 ? '#39FF14' : i < 10 ? '#FFD700' : '#FF003C') : '#151515',
+                    boxShadow: masterLevel > i / 12 && i >= 10 ? '0 0 4px #FF003C' : 'none',
                   }} />
                 ))}
               </div>
-              <span className="text-[5px] text-white/20">{ch}</span>
+              <span className="text-[5px] text-white/25 mt-0.5">{ch}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="flex justify-around">
-        <Knob label="MSTR" value={75} color="#FF003C" size={22} />
-        <Knob label="BOOTH" value={50} color="#FFD700" size={22} />
+        <Knob label="MASTER" value={75} color="#FF003C" size={32} />
+        <Knob label="BOOTH" value={50} color="#FFD700" size={32} />
       </div>
 
       <div className="h-px bg-white/8" />
 
-      {/* Channel strips side by side */}
-      <div className="flex gap-1">
-        {/* CH A */}
-        <div className="flex-1 flex flex-col items-center gap-0.5">
-          <span className="text-[6px] font-['Orbitron'] text-[#00F0FF]">CH 1</span>
-          <Knob label="TRIM" value={50} color="#00F0FF" size={20} />
-          <Knob label="HI" value={50} color="#39FF14" size={20} />
-          <Knob label="MID" value={50} color="#FFD700" size={20} />
-          <Knob label="LOW" value={50} color="#FF003C" size={20} />
+      {/* Channel strips */}
+      <div className="flex gap-2">
+        <div className="flex-1 flex flex-col items-center gap-1">
+          <span className="text-[7px] font-['Orbitron'] text-[#00F0FF]">CH 1</span>
+          <Knob label="TRIM" value={50} color="#00F0FF" size={22} />
+          <Knob label="HI" value={50} color="#39FF14" size={22} />
+          <Knob label="MID" value={50} color="#FFD700" size={22} />
+          <Knob label="LOW" value={50} color="#FF003C" size={22} />
           <div className="flex gap-px">
             {['L', 'R'].map(ch => (
               <div key={ch} className="flex flex-col-reverse gap-px">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="w-1 h-1 rounded-sm" style={{
-                    background: levelA > i / 6 ? (i < 4 ? '#39FF14' : i < 5 ? '#FFD700' : '#FF003C') : '#151515',
-                  }} />
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="w-1.5 h-1 rounded-sm" style={{ background: levelA > i / 8 ? (i < 5 ? '#39FF14' : i < 7 ? '#FFD700' : '#FF003C') : '#151515' }} />
                 ))}
               </div>
             ))}
           </div>
-          <div className="w-2.5 h-10 bg-black/60 rounded relative border border-white/8">
+          <div className="w-3 h-14 bg-black/60 rounded relative border border-white/8">
             <div className="absolute bottom-0 left-0 right-0 rounded-b" style={{ height: `${deckA.volume * 100}%`, background: '#00F0FF25' }} />
-            <div className="absolute left-1/2 -translate-x-1/2 w-4 h-1.5 bg-gray-400 rounded" style={{ bottom: `${deckA.volume * 85}%` }} />
+            <div className="absolute left-1/2 -translate-x-1/2 w-5 h-2 bg-gray-400 rounded" style={{ bottom: `${deckA.volume * 85}%` }} />
           </div>
         </div>
 
-        {/* CH B */}
-        <div className="flex-1 flex flex-col items-center gap-0.5">
-          <span className="text-[6px] font-['Orbitron'] text-[#FF003C]">CH 2</span>
-          <Knob label="TRIM" value={50} color="#FF003C" size={20} />
-          <Knob label="HI" value={50} color="#39FF14" size={20} />
-          <Knob label="MID" value={50} color="#FFD700" size={20} />
-          <Knob label="LOW" value={50} color="#FF003C" size={20} />
+        <div className="flex-1 flex flex-col items-center gap-1">
+          <span className="text-[7px] font-['Orbitron'] text-[#FF003C]">CH 2</span>
+          <Knob label="TRIM" value={50} color="#FF003C" size={22} />
+          <Knob label="HI" value={50} color="#39FF14" size={22} />
+          <Knob label="MID" value={50} color="#FFD700" size={22} />
+          <Knob label="LOW" value={50} color="#FF003C" size={22} />
           <div className="flex gap-px">
             {['L', 'R'].map(ch => (
               <div key={ch} className="flex flex-col-reverse gap-px">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="w-1 h-1 rounded-sm" style={{
-                    background: levelB > i / 6 ? (i < 4 ? '#39FF14' : i < 5 ? '#FFD700' : '#FF003C') : '#151515',
-                  }} />
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="w-1.5 h-1 rounded-sm" style={{ background: levelB > i / 8 ? (i < 5 ? '#39FF14' : i < 7 ? '#FFD700' : '#FF003C') : '#151515' }} />
                 ))}
               </div>
             ))}
           </div>
-          <div className="w-2.5 h-10 bg-black/60 rounded relative border border-white/8">
+          <div className="w-3 h-14 bg-black/60 rounded relative border border-white/8">
             <div className="absolute bottom-0 left-0 right-0 rounded-b" style={{ height: `${deckB.volume * 100}%`, background: '#FF003C25' }} />
-            <div className="absolute left-1/2 -translate-x-1/2 w-4 h-1.5 bg-gray-400 rounded" style={{ bottom: `${deckB.volume * 85}%` }} />
+            <div className="absolute left-1/2 -translate-x-1/2 w-5 h-2 bg-gray-400 rounded" style={{ bottom: `${deckB.volume * 85}%` }} />
           </div>
         </div>
       </div>
 
-      {/* Headphones */}
+      <div className="h-px bg-white/8" />
       <div className="flex justify-around">
-        <Knob label="CUE" value={50} color="#00F0FF" size={20} />
-        <Knob label="LVL" value={60} color="#FFD700" size={20} />
+        <Knob label="CUE" value={50} color="#00F0FF" size={22} />
+        <Knob label="LVL" value={60} color="#FFD700" size={22} />
       </div>
     </div>
   );
@@ -498,7 +493,7 @@ function App() {
       </header>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col min-h-0 px-3 py-3 gap-3">
+      <div className="flex-1 flex flex-col min-h-0 px-6 py-3 gap-3">
         {/* TOP ROW: Turntables + Visualizer + Crossfader */}
         <div className="shrink-0 flex items-center justify-center gap-10">
           <VinylTurntable isPlaying={deckA.isPlaying} analyserData={deckA.analyserData} deckId="A" currentStation={deckA.currentStation} rotation={rotationA} />
