@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import "@/App.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radio, Disc3, Keyboard, Info } from "lucide-react";
-import { DualTurntable } from "./components/DualTurntable";
+import { Radio, Disc3, Keyboard, Mic, Monitor } from "lucide-react";
+import { PioneerDeck } from "./components/PioneerDeck";
+import { CentralMixer } from "./components/CentralMixer";
 import { DualVisualizer } from "./components/DualVisualizer";
-import { FullDeckControls } from "./components/FullDeckControls";
-import { Crossfader } from "./components/Crossfader";
 import { StationBrowser } from "./components/StationBrowser";
 import { RecordingPanel } from "./components/RecordingPanel";
 import { useAudioDeck } from "./hooks/useAudioDeck";
@@ -23,8 +22,12 @@ function App() {
   const [isStationBrowserOpen, setIsStationBrowserOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [activeDeck, setActiveDeck] = useState('A');
-  const [crossfade, setCrossfade] = useState(0); // -1 = full A, 0 = center, 1 = full B
+  const [crossfade, setCrossfade] = useState(0);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+  const [masterVolume, setMasterVolume] = useState(0.8);
+  const [boothVolume, setBoothVolume] = useState(0.5);
+  const [headphoneMix, setHeadphoneMix] = useState(0.5);
+  const [headphoneLevel, setHeadphoneLevel] = useState(0.7);
 
   // Dual deck audio hooks
   const deckA = useAudioDeck('A');
@@ -46,9 +49,7 @@ function App() {
         duration: 3000,
       });
     } catch (err) {
-      toast.error("Failed to play station", {
-        description: "Try another station",
-      });
+      toast.error("Failed to play station");
     }
   };
 
@@ -58,15 +59,14 @@ function App() {
     if (deckB.error) toast.error(`Deck B: ${deckB.error}`);
   }, [deckA.error, deckB.error]);
 
-  // Hide intro after delay
+  // Hide intro
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 2500);
+    const timer = setTimeout(() => setShowIntro(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
   // Keyboard shortcuts
   const handleKeyPress = useCallback((e) => {
-    // Ignore if typing in an input
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
     switch (e.key.toLowerCase()) {
@@ -76,11 +76,11 @@ function App() {
         break;
       case 'a':
         setActiveDeck('A');
-        toast.info('Deck A selected', { duration: 1000 });
+        toast.info('Deck A', { duration: 800 });
         break;
       case 'b':
         setActiveDeck('B');
-        toast.info('Deck B selected', { duration: 1000 });
+        toast.info('Deck B', { duration: 800 });
         break;
       case 'q':
         deckA.togglePlayPause();
@@ -94,12 +94,8 @@ function App() {
       case 'r':
         if (recorder.isRecording) {
           recorder.stopRecording();
-          toast.success('Recording stopped');
         } else {
-          recorder.startRecording().catch(() => {
-            toast.error('Failed to start recording');
-          });
-          toast.success('Recording started');
+          recorder.startRecording().catch(() => toast.error('Recording failed'));
         }
         break;
       case 'arrowleft':
@@ -107,12 +103,6 @@ function App() {
         break;
       case 'arrowright':
         setCrossfade(prev => Math.min(1, prev + 0.1));
-        break;
-      case 'arrowup':
-        getActiveDeck().updateVolume(Math.min(1, getActiveDeck().volume + 0.05));
-        break;
-      case 'arrowdown':
-        getActiveDeck().updateVolume(Math.max(0, getActiveDeck().volume - 0.05));
         break;
       case '?':
         setShowKeyboardHelp(prev => !prev);
@@ -127,45 +117,12 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleKeyPress]);
 
-  // Calculate reactive background based on combined audio
-  const combinedLevel = (
-    (deckA.analyserData.reduce((a, b) => a + b, 0) / deckA.analyserData.length / 255) * (crossfade <= 0 ? 1 : 1 - crossfade) +
-    (deckB.analyserData.reduce((a, b) => a + b, 0) / deckB.analyserData.length / 255) * (crossfade >= 0 ? 1 : 1 + crossfade)
-  );
-
   return (
     <TooltipProvider>
       <div 
-        className="min-h-screen bg-[#050505] relative overflow-hidden"
-        data-testid="dj-turntable-app"
+        className="min-h-screen bg-[#0a0a0a] relative overflow-x-hidden"
+        data-testid="pioneer-dj-app"
       >
-        {/* Animated background */}
-        <div 
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            background: `radial-gradient(ellipse at 30% 50%, 
-              rgba(0, 240, 255, ${0.02 + combinedLevel * 0.04}) 0%, 
-              transparent 50%
-            ), radial-gradient(ellipse at 70% 50%, 
-              rgba(255, 0, 60, ${0.02 + combinedLevel * 0.04}) 0%, 
-              transparent 50%
-            )`,
-            transition: "background 0.1s ease",
-          }}
-        />
-
-        {/* Grid background */}
-        <div 
-          className="fixed inset-0 pointer-events-none opacity-10"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: "50px 50px",
-          }}
-        />
-
         {/* Intro animation */}
         <AnimatePresence>
           {showIntro && (
@@ -178,20 +135,19 @@ function App() {
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 1.5, opacity: 0 }}
+                exit={{ scale: 1.2, opacity: 0 }}
                 className="text-center"
               >
-                <div className="flex justify-center gap-4 mb-4">
-                  <Disc3 className="w-16 h-16 text-[#00F0FF] animate-spin" style={{ animationDuration: '2s' }} />
-                  <Disc3 className="w-16 h-16 text-[#FF003C] animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+                <div className="flex justify-center gap-6 mb-4">
+                  <Disc3 className="w-14 h-14 text-[#00F0FF] animate-spin" style={{ animationDuration: '1.5s' }} />
+                  <Disc3 className="w-14 h-14 text-[#FF003C] animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
                 </div>
-                <h1 className="text-4xl font-['Orbitron'] text-white tracking-widest">
+                <h1 className="text-3xl font-['Orbitron'] tracking-wider">
                   <span className="text-[#00F0FF]">CYBER</span>
-                  <span className="text-[#FF003C]">DECK</span>
+                  <span className="text-white">DECK</span>
+                  <span className="text-[#FF003C]"> DJ</span>
                 </h1>
-                <p className="text-sm font-mono text-white/50 mt-2 tracking-wider">
-                  DUAL DECK DJ SYSTEM v2.0
-                </p>
+                <p className="text-xs font-mono text-white/50 mt-2">XDJ-RX3 STYLE</p>
               </motion.div>
             </motion.div>
           )}
@@ -204,33 +160,31 @@ function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/80 flex items-center justify-center p-4"
+              className="fixed inset-0 z-40 bg-black/90 flex items-center justify-center p-4"
               onClick={() => setShowKeyboardHelp(false)}
             >
               <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
                 className="cyber-panel p-6 max-w-md w-full"
                 onClick={e => e.stopPropagation()}
               >
                 <h2 className="text-lg font-['Orbitron'] text-[#00F0FF] mb-4 flex items-center gap-2">
                   <Keyboard className="w-5 h-5" />
-                  KEYBOARD SHORTCUTS
+                  SHORTCUTS
                 </h2>
-                <div className="space-y-2 text-sm font-mono">
+                <div className="grid grid-cols-2 gap-2 text-sm font-mono">
                   {[
-                    ['SPACE', 'Play/Pause active deck'],
-                    ['A / B', 'Select deck A / B'],
-                    ['Q / W', 'Toggle play deck A / B'],
-                    ['S', 'Open station browser'],
-                    ['R', 'Start/Stop recording'],
-                    ['← / →', 'Move crossfader'],
-                    ['↑ / ↓', 'Volume up/down'],
-                    ['?', 'Toggle this help'],
+                    ['SPACE', 'Play/Pause'],
+                    ['A / B', 'Select deck'],
+                    ['Q / W', 'Toggle A/B'],
+                    ['S', 'Stations'],
+                    ['R', 'Record'],
+                    ['← →', 'Crossfade'],
+                    ['?', 'This help'],
                   ].map(([key, desc]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-[#00F0FF] bg-white/10 px-2 py-0.5 rounded">{key}</span>
+                    <div key={key} className="flex justify-between py-1">
+                      <span className="text-[#00F0FF] bg-white/10 px-2 rounded">{key}</span>
                       <span className="text-white/60">{desc}</span>
                     </div>
                   ))}
@@ -239,7 +193,7 @@ function App() {
                   onClick={() => setShowKeyboardHelp(false)}
                   className="mt-4 w-full py-2 bg-white/10 hover:bg-white/20 rounded text-white/60 text-sm"
                 >
-                  Close (ESC)
+                  CLOSE
                 </button>
               </motion.div>
             </motion.div>
@@ -247,54 +201,48 @@ function App() {
         </AnimatePresence>
 
         {/* Header */}
-        <header className="relative z-10 p-3 md:p-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <motion.div 
-              className="flex items-center gap-3"
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <div className="flex -space-x-2">
-                <Disc3 
-                  className={`w-6 h-6 text-[#00F0FF] ${deckA.isPlaying ? 'animate-spin' : ''}`}
-                  style={{ animationDuration: '2s' }}
-                />
-                <Disc3 
-                  className={`w-6 h-6 text-[#FF003C] ${deckB.isPlaying ? 'animate-spin' : ''}`}
-                  style={{ animationDuration: '2s', animationDirection: 'reverse' }}
-                />
+        <header className="relative z-10 px-4 py-2 border-b border-white/10 bg-black/50">
+          <div className="max-w-[1800px] mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-1">
+                <Disc3 className={`w-5 h-5 text-[#00F0FF] ${deckA.isPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '2s' }} />
+                <Disc3 className={`w-5 h-5 text-[#FF003C] ${deckB.isPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
               </div>
               <div>
-                <h1 className="text-lg md:text-xl font-['Orbitron'] font-bold tracking-wider">
+                <h1 className="text-sm font-['Orbitron'] font-bold">
                   <span className="text-[#00F0FF]">CYBER</span>
-                  <span className="text-[#FF003C]">DECK</span>
+                  <span className="text-white">DECK</span>
                 </h1>
-                <p className="text-[8px] font-mono text-white/40 tracking-widest">
-                  DUAL DECK DJ SYSTEM
-                </p>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div 
-              className="flex items-center gap-2"
-              initial={{ x: 50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
+            {/* Now playing indicators */}
+            <div className="flex items-center gap-3">
+              {deckA.currentStation && (
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#00F0FF]/10 border border-[#00F0FF]/30">
+                  <Radio className={`w-3 h-3 ${deckA.isPlaying ? 'text-[#39FF14]' : 'text-white/40'}`} />
+                  <span className="text-[10px] text-[#00F0FF]">A: {deckA.currentStation.name?.substring(0, 15)}</span>
+                </div>
+              )}
+              {deckB.currentStation && (
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#FF003C]/10 border border-[#FF003C]/30">
+                  <Radio className={`w-3 h-3 ${deckB.isPlaying ? 'text-[#39FF14]' : 'text-white/40'}`} />
+                  <span className="text-[10px] text-[#FF003C]">B: {deckB.currentStation.name?.substring(0, 15)}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => setShowKeyboardHelp(true)}
-                    className="p-2 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
-                    data-testid="keyboard-help-btn"
+                    className="p-1.5 rounded hover:bg-white/10 text-white/40"
                   >
                     <Keyboard className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>Keyboard shortcuts (?)</p>
-                </TooltipContent>
+                <TooltipContent>Shortcuts (?)</TooltipContent>
               </Tooltip>
               
               <StationBrowser
@@ -303,78 +251,71 @@ function App() {
                 isOpen={isStationBrowserOpen}
                 onOpenChange={setIsStationBrowserOpen}
               />
-            </motion.div>
+            </div>
           </div>
         </header>
 
-        {/* Now Playing banners */}
-        <div className="relative z-10 px-4 flex justify-center gap-4 mb-4">
-          {deckA.currentStation && (
-            <motion.div
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#00F0FF]/10 border border-[#00F0FF]/30"
-            >
-              <Radio className={`w-3 h-3 ${deckA.isPlaying ? 'text-[#39FF14] animate-pulse' : 'text-white/40'}`} />
-              <span className="text-xs font-['Rajdhani'] text-[#00F0FF]">A: {deckA.currentStation.name}</span>
-            </motion.div>
-          )}
-          {deckB.currentStation && (
-            <motion.div
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#FF003C]/10 border border-[#FF003C]/30"
-            >
-              <Radio className={`w-3 h-3 ${deckB.isPlaying ? 'text-[#39FF14] animate-pulse' : 'text-white/40'}`} />
-              <span className="text-xs font-['Rajdhani'] text-[#FF003C]">B: {deckB.currentStation.name}</span>
-            </motion.div>
-          )}
+        {/* Main Screen Display - Waveforms */}
+        <div className="px-4 py-3 bg-black/30 border-b border-white/10">
+          <div className="max-w-[1800px] mx-auto">
+            <DualVisualizer
+              deckAData={deckA.analyserData}
+              deckBData={deckB.analyserData}
+              isPlayingA={deckA.isPlaying}
+              isPlayingB={deckB.isPlaying}
+              crossfade={crossfade}
+            />
+          </div>
         </div>
 
-        {/* Main content */}
-        <main className="relative z-10 px-3 md:px-4 pb-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Dual Deck Layout */}
-            <div className="grid grid-cols-12 gap-3 md:gap-4">
-              {/* Deck A Turntable */}
-              <motion.div 
-                className="col-span-12 md:col-span-3 flex items-center justify-center"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.7 }}
+        {/* Main DJ Controller Layout */}
+        <main className="px-4 py-4">
+          <div className="max-w-[1800px] mx-auto">
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-4">
+              {/* Deck A */}
+              <motion.div
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                onClick={() => setActiveDeck('A')}
+                className={`cursor-pointer transition-all ${activeDeck === 'A' ? 'ring-2 ring-[#00F0FF]/50 rounded-xl' : ''}`}
               >
-                <DualTurntable
-                  isPlaying={deckA.isPlaying}
-                  analyserData={deckA.analyserData}
-                  currentStation={deckA.currentStation}
+                <PioneerDeck
                   deckId="A"
-                  isActive={activeDeck === 'A'}
+                  isPlaying={deckA.isPlaying}
+                  isLoading={deckA.isLoading}
+                  currentStation={deckA.currentStation}
+                  volume={deckA.volume}
+                  analyserData={deckA.analyserData}
+                  waveformData={deckA.waveformData}
+                  pitch={deckA.pitch}
+                  onTogglePlay={deckA.togglePlayPause}
+                  onPitchChange={deckA.updatePitch}
+                  onVolumeChange={deckA.updateVolume}
                 />
               </motion.div>
 
-              {/* Center - Visualizer + Crossfader */}
-              <motion.div 
-                className="col-span-12 md:col-span-6 space-y-3"
+              {/* Center Mixer */}
+              <motion.div
                 initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.8 }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-col gap-4"
               >
-                {/* Dual Visualizer */}
-                <DualVisualizer
-                  deckAData={deckA.analyserData}
-                  deckBData={deckB.analyserData}
-                  isPlayingA={deckA.isPlaying}
-                  isPlayingB={deckB.isPlaying}
+                <CentralMixer
+                  deckA={deckA}
+                  deckB={deckB}
                   crossfade={crossfade}
+                  onCrossfadeChange={setCrossfade}
+                  masterVolume={masterVolume}
+                  onMasterVolumeChange={setMasterVolume}
+                  boothVolume={boothVolume}
+                  onBoothVolumeChange={setBoothVolume}
+                  headphoneMix={headphoneMix}
+                  onHeadphoneMixChange={setHeadphoneMix}
+                  headphoneLevel={headphoneLevel}
+                  onHeadphoneLevelChange={setHeadphoneLevel}
                 />
-
-                {/* Crossfader */}
-                <div className="cyber-panel p-4">
-                  <Crossfader
-                    value={crossfade}
-                    onChange={setCrossfade}
-                  />
-                </div>
 
                 {/* Recording Panel */}
                 <RecordingPanel
@@ -382,11 +323,7 @@ function App() {
                   recordingDuration={recorder.recordingDuration}
                   recordedBlob={recorder.recordedBlob}
                   recordingUrl={recorder.recordingUrl}
-                  onStartRecording={() => {
-                    recorder.startRecording().catch(() => {
-                      toast.error('Recording failed', { description: 'Make sure to allow screen/audio capture' });
-                    });
-                  }}
+                  onStartRecording={() => recorder.startRecording().catch(() => toast.error('Recording failed'))}
                   onStopRecording={recorder.stopRecording}
                   onDownload={recorder.downloadRecording}
                   onClear={recorder.clearRecording}
@@ -394,132 +331,61 @@ function App() {
                 />
               </motion.div>
 
-              {/* Deck B Turntable */}
-              <motion.div 
-                className="col-span-12 md:col-span-3 flex items-center justify-center"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.7 }}
-              >
-                <DualTurntable
-                  isPlaying={deckB.isPlaying}
-                  analyserData={deckB.analyserData}
-                  currentStation={deckB.currentStation}
-                  deckId="B"
-                  isActive={activeDeck === 'B'}
-                />
-              </motion.div>
-            </div>
-
-            {/* Deck Controls Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+              {/* Deck B */}
               <motion.div
-                initial={{ x: -30, opacity: 0 }}
+                initial={{ x: 50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.9 }}
+                transition={{ delay: 0.3 }}
+                onClick={() => setActiveDeck('B')}
+                className={`cursor-pointer transition-all ${activeDeck === 'B' ? 'ring-2 ring-[#FF003C]/50 rounded-xl' : ''}`}
               >
-                <FullDeckControls
-                  deckId="A"
-                  isPlaying={deckA.isPlaying}
-                  isLoading={deckA.isLoading}
-                  volume={deckA.volume}
-                  bass={deckA.bass}
-                  mid={deckA.mid}
-                  treble={deckA.treble}
-                  echo={deckA.echo}
-                  reverb={deckA.reverb}
-                  filter={deckA.filter}
-                  pitch={deckA.pitch}
-                  analyserData={deckA.analyserData}
-                  waveformData={deckA.waveformData}
-                  onTogglePlay={deckA.togglePlayPause}
-                  onVolumeChange={deckA.updateVolume}
-                  onBassChange={deckA.updateBass}
-                  onMidChange={deckA.updateMid}
-                  onTrebleChange={deckA.updateTreble}
-                  onEchoChange={deckA.updateEcho}
-                  onReverbChange={deckA.updateReverb}
-                  onFilterChange={deckA.updateFilter}
-                  onPitchChange={deckA.updatePitch}
-                  currentStation={deckA.currentStation}
-                  isActive={activeDeck === 'A'}
-                  onActivate={() => setActiveDeck('A')}
-                />
-              </motion.div>
-              <motion.div
-                initial={{ x: 30, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.9 }}
-              >
-                <FullDeckControls
+                <PioneerDeck
                   deckId="B"
                   isPlaying={deckB.isPlaying}
                   isLoading={deckB.isLoading}
+                  currentStation={deckB.currentStation}
                   volume={deckB.volume}
-                  bass={deckB.bass}
-                  mid={deckB.mid}
-                  treble={deckB.treble}
-                  echo={deckB.echo}
-                  reverb={deckB.reverb}
-                  filter={deckB.filter}
-                  pitch={deckB.pitch}
                   analyserData={deckB.analyserData}
                   waveformData={deckB.waveformData}
+                  pitch={deckB.pitch}
                   onTogglePlay={deckB.togglePlayPause}
-                  onVolumeChange={deckB.updateVolume}
-                  onBassChange={deckB.updateBass}
-                  onMidChange={deckB.updateMid}
-                  onTrebleChange={deckB.updateTreble}
-                  onEchoChange={deckB.updateEcho}
-                  onReverbChange={deckB.updateReverb}
-                  onFilterChange={deckB.updateFilter}
                   onPitchChange={deckB.updatePitch}
-                  currentStation={deckB.currentStation}
-                  isActive={activeDeck === 'B'}
-                  onActivate={() => setActiveDeck('B')}
+                  onVolumeChange={deckB.updateVolume}
                 />
               </motion.div>
             </div>
-
-            {/* Empty state prompt */}
-            {!deckA.currentStation && !deckB.currentStation && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2 }}
-                className="mt-6 text-center"
-                data-testid="empty-state-prompt"
-              >
-                <button
-                  onClick={() => setIsStationBrowserOpen(true)}
-                  className="group inline-flex items-center gap-3 px-6 py-3 rounded-lg bg-gradient-to-r from-[#00F0FF]/10 to-[#FF003C]/10 border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-300"
-                >
-                  <Radio className="w-5 h-5 text-[#00F0FF] group-hover:animate-pulse" />
-                  <span className="text-base font-['Rajdhani'] font-semibold text-white group-hover:text-[#00F0FF] transition-colors">
-                    LOAD A STATION TO BEGIN
-                  </span>
-                </button>
-                <p className="mt-2 text-[10px] font-mono text-white/30">
-                  Press S to open stations • Press ? for all shortcuts
-                </p>
-              </motion.div>
-            )}
           </div>
         </main>
 
+        {/* Empty state */}
+        {!deckA.currentStation && !deckB.currentStation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="fixed bottom-20 left-1/2 -translate-x-1/2"
+          >
+            <button
+              onClick={() => setIsStationBrowserOpen(true)}
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-[#00F0FF]/20 to-[#FF003C]/20 border border-white/20 hover:border-white/40 transition-all"
+            >
+              <span className="text-sm font-['Rajdhani'] text-white">LOAD A STATION TO BEGIN</span>
+            </button>
+          </motion.div>
+        )}
+
         {/* Footer */}
-        <footer className="relative z-10 p-3 text-center">
-          <p className="text-[9px] font-mono text-white/20 tracking-widest">
-            POWERED BY RADIO BROWSER API • PRESS ? FOR KEYBOARD SHORTCUTS
+        <footer className="relative z-10 p-2 text-center border-t border-white/5">
+          <p className="text-[8px] font-mono text-white/20">
+            CYBERDECK DJ • PIONEER XDJ-RX3 STYLE • PRESS ? FOR SHORTCUTS
           </p>
         </footer>
 
-        {/* Toast notifications */}
         <Toaster 
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#0A0A0A',
+              background: '#111',
               border: '1px solid rgba(0, 240, 255, 0.2)',
               color: '#fff',
             },
