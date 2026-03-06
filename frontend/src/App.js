@@ -13,7 +13,7 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
   const c = deckId === 'A' ? '#00F0FF' : '#FF003C';
   const arm = isPlaying ? -8 : -35;
   return (
-    <div className="relative" data-testid={`turntable-${deckId.toLowerCase()}`}>
+    <div className="relative overflow-hidden" data-testid={`turntable-${deckId.toLowerCase()}`}>
       <div className="relative" style={{ width: 190, height: 190 }}>
         <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(145deg, #1a1a1a, #0a0a0a)', boxShadow: `inset 0 0 30px rgba(0,0,0,0.8), 0 0 ${isPlaying ? 22 : 8}px ${c}30`, border: `2px solid ${c}25` }} />
         <div className="absolute inset-2 rounded-full" style={{ background: `conic-gradient(${c}15, ${c}40, ${c}15, ${c}40, ${c}15)`, opacity: isPlaying ? 0.5 : 0.15, filter: 'blur(2px)' }} />
@@ -326,11 +326,25 @@ const DeckPanel = ({ deck, deckId }) => {
 
       {/* Pads */}
       <div className="grid grid-cols-4 gap-1 flex-1 min-h-0">
-        {[1,2,3,4,5,6,7,8].map(n => (
+        {[
+          { n: 1, color: '#FF003C' },
+          { n: 2, color: '#FF6600' },
+          { n: 3, color: '#FFD700' },
+          { n: 4, color: '#39FF14' },
+          { n: 5, color: '#00F0FF' },
+          { n: 6, color: '#0066FF' },
+          { n: 7, color: '#9900FF' },
+          { n: 8, color: '#FF00AA' },
+        ].map(({ n, color }) => (
           <button key={n} data-testid={`pad-${n}-${deckId.toLowerCase()}`}
             onClick={() => setActivePads(p => p.includes(n) ? p.filter(x => x !== n) : [...p, n])}
             className="rounded text-xs font-bold transition-all flex items-center justify-center"
-            style={{ background: activePads.includes(n) ? '#3a3a3a' : '#151515', border: `1px solid ${activePads.includes(n) ? '#555' : '#252525'}`, color: activePads.includes(n) ? '#fff' : '#444' }}>
+            style={{
+              background: activePads.includes(n) ? color + '50' : color + '18',
+              border: `1px solid ${activePads.includes(n) ? color : color + '40'}`,
+              color: activePads.includes(n) ? '#fff' : color + '90',
+              boxShadow: activePads.includes(n) ? `0 0 10px ${color}40` : 'none',
+            }}>
             {n}
           </button>
         ))}
@@ -486,9 +500,9 @@ function App() {
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col min-h-0 px-3 py-3 gap-3">
         {/* TOP ROW: Turntables + Visualizer + Crossfader */}
-        <div className="shrink-0 flex items-center justify-center gap-6">
+        <div className="shrink-0 flex items-center justify-center gap-10">
           <VinylTurntable isPlaying={deckA.isPlaying} analyserData={deckA.analyserData} deckId="A" currentStation={deckA.currentStation} rotation={rotationA} />
-          <div className="flex-1 max-w-[520px] flex flex-col items-stretch justify-center" style={{ height: 190 }}>
+          <div className="flex-1 max-w-[480px] flex flex-col items-stretch justify-center gap-1.5" style={{ height: 190 }}>
             <SpectrumVisualizer deckAData={deckA.analyserData} deckBData={deckB.analyserData} isPlayingA={deckA.isPlaying} isPlayingB={deckB.isPlaying} />
             <div>
               <Crossfader value={crossfade} onChange={setCrossfade} />
@@ -507,10 +521,10 @@ function App() {
 
       {/* Empty state */}
       {!deckA.currentStation && !deckB.currentStation && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+        <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50">
           <button data-testid="load-station-btn" onClick={() => setIsStationBrowserOpen(true)}
-            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#00F0FF]/20 to-[#FF003C]/20 border border-white/20 hover:border-white/40 text-sm font-['Orbitron'] tracking-wide">
-            LOAD A STATION TO BEGIN
+            className="px-3 py-1.5 rounded bg-gradient-to-r from-[#00F0FF]/15 to-[#FF003C]/15 border border-white/15 hover:border-white/30 text-[10px] font-['Orbitron'] tracking-wide text-white/60 hover:text-white/80">
+            LOAD STATION
           </button>
         </div>
       )}
