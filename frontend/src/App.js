@@ -14,10 +14,6 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
   const arm = isPlaying ? -8 : -35;
   return (
     <div className="relative" data-testid={`turntable-${deckId.toLowerCase()}`}>
-      <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-        <div className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'animate-pulse' : ''}`} style={{ background: isPlaying ? '#39FF14' : '#333' }} />
-        <span className="text-[9px] font-['Orbitron'] font-bold" style={{ color: c }}>DECK {deckId}</span>
-      </div>
       <div className="relative" style={{ width: 190, height: 190 }}>
         <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(145deg, #1a1a1a, #0a0a0a)', boxShadow: `inset 0 0 30px rgba(0,0,0,0.8), 0 0 ${isPlaying ? 22 : 8}px ${c}30`, border: `2px solid ${c}25` }} />
         <div className="absolute inset-2 rounded-full" style={{ background: `conic-gradient(${c}15, ${c}40, ${c}15, ${c}40, ${c}15)`, opacity: isPlaying ? 0.5 : 0.15, filter: 'blur(2px)' }} />
@@ -33,14 +29,16 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
           </div>
           <div className="absolute top-1.5 left-1/2 w-1 h-3 -translate-x-1/2 rounded-full" style={{ background: c, boxShadow: `0 0 6px ${c}` }} />
         </motion.div>
-        <motion.div className="absolute -right-3 top-[14%] origin-top-right" animate={{ rotate: arm }} transition={{ type: 'spring', stiffness: 80, damping: 15 }}>
-          <div className="absolute -top-3 -right-3 w-9 h-9 rounded-full" style={{ background: 'linear-gradient(145deg, #333, #1a1a1a)', boxShadow: '0 2px 6px rgba(0,0,0,0.5)' }} />
-          <div className="w-[105px] h-1.5 rounded-full" style={{ background: 'linear-gradient(to bottom, #555, #333)' }} />
-          <div className="absolute left-0 top-0 w-5 h-2.5 -translate-x-4" style={{ background: 'linear-gradient(to bottom, #444, #222)', clipPath: 'polygon(100% 0, 100% 100%, 0 70%, 0 30%)' }}>
+        {/* Tonearm — contained inside the turntable box */}
+        <motion.div className="absolute -right-1 top-[16%] origin-top-right" animate={{ rotate: arm }} transition={{ type: 'spring', stiffness: 80, damping: 15 }}>
+          <div className="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full" style={{ background: 'linear-gradient(145deg, #333, #1a1a1a)', boxShadow: '0 2px 5px rgba(0,0,0,0.5)' }} />
+          <div className="w-[90px] h-1 rounded-full" style={{ background: 'linear-gradient(to bottom, #555, #333)' }} />
+          <div className="absolute left-0 top-0 w-4 h-2 -translate-x-3" style={{ background: 'linear-gradient(to bottom, #444, #222)', clipPath: 'polygon(100% 0, 100% 100%, 0 70%, 0 30%)' }}>
             <div className={`absolute bottom-0.5 left-0.5 w-1 h-1 rounded-full ${isPlaying ? 'bg-[#39FF14]' : 'bg-[#333]'}`} style={{ boxShadow: isPlaying ? '0 0 4px #39FF14' : 'none' }} />
           </div>
         </motion.div>
-        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
+        {/* LED dots inside the turntable at the bottom */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
           {[...Array(5)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: isPlaying && analyserData[i * 20] > 100 ? c : '#222', boxShadow: isPlaying && analyserData[i * 20] > 100 ? `0 0 4px ${c}` : 'none' }} />)}
         </div>
       </div>
@@ -99,12 +97,7 @@ const SpectrumVisualizer = ({ deckAData, deckBData, isPlayingA, isPlayingB }) =>
           <span className={`w-1.5 h-1.5 rounded-full ${isPlayingB ? 'bg-[#FF003C] animate-pulse' : 'bg-white/15'}`} />DECK B
         </span>
       </div>
-      <div className="absolute bottom-2 left-3 flex gap-3 text-[8px] font-mono text-white/40 z-10">
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#FF003C]" />BASS</span>
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF]" />MID</span>
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#39FF14]" />HIGH</span>
-      </div>
-      <canvas ref={canvasRef} width={700} height={150} className="w-full h-[130px]" />
+      <canvas ref={canvasRef} width={700} height={150} className="w-full h-[120px]" />
     </div>
   );
 };
@@ -495,7 +488,7 @@ function App() {
         {/* TOP ROW: Turntables + Visualizer + Crossfader */}
         <div className="shrink-0 flex items-center justify-center gap-6">
           <VinylTurntable isPlaying={deckA.isPlaying} analyserData={deckA.analyserData} deckId="A" currentStation={deckA.currentStation} rotation={rotationA} />
-          <div className="flex-1 max-w-[520px] flex flex-col justify-center gap-1.5" style={{ minHeight: 190 }}>
+          <div className="flex-1 max-w-[520px] flex flex-col items-stretch justify-center" style={{ height: 190 }}>
             <SpectrumVisualizer deckAData={deckA.analyserData} deckBData={deckB.analyserData} isPlayingA={deckA.isPlaying} isPlayingB={deckB.isPlaying} />
             <div>
               <Crossfader value={crossfade} onChange={setCrossfade} />
