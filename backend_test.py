@@ -5,7 +5,7 @@ import json
 
 class CyberdeckAPITester:
     def __init__(self):
-        self.base_url = "https://music-reactive-board.preview.emergentagent.com/api"
+        self.base_url = "https://turntable-pro-7.preview.emergentagent.com/api"
         self.tests_run = 0
         self.tests_passed = 0
         self.failed_tests = []

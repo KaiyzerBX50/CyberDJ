@@ -370,20 +370,22 @@ const DeckPanel = ({ deck, deckId }) => {
       </div>
 
       {/* Waveform */}
-      <div className="h-12 rounded bg-black/40 border border-white/5 mb-3 relative overflow-hidden">
-        {deck.currentStation && (
+      <div className="h-10 rounded bg-black/40 border border-white/5 mb-2 relative overflow-hidden">
+        {deck.currentStation && deck.isPlaying ? (
           <>
-            <div className="absolute inset-0 flex items-center justify-center gap-px px-1">
-              {deck.waveformData.slice(0, 80).map((v, i) => (
-                <div key={i} className="flex-1 rounded-sm" style={{
-                  height: `${Math.max(10, Math.abs(v - 128) / 128 * 100)}%`,
-                  background: deckColor,
-                  opacity: deck.isPlaying ? 0.7 : 0.3,
-                }} />
-              ))}
+            <div className="absolute inset-0 flex items-end px-1">
+              {[...Array(60)].map((_, i) => {
+                const val = deck.waveformData[i * 2] || 128;
+                const h = Math.abs(val - 128) / 128 * 100;
+                return <div key={i} className="flex-1 mx-px rounded-t" style={{ height: `${Math.max(5, h)}%`, background: deckColor, opacity: 0.7 }} />;
+              })}
             </div>
             <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white/80" />
           </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-full h-px bg-white/10" />
+          </div>
         )}
       </div>
 

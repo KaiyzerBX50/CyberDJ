@@ -4,7 +4,7 @@ from urllib.parse import quote
 
 def test_stream_proxy():
     """Test the audio stream proxy endpoint"""
-    base_url = "https://music-reactive-board.preview.emergentagent.com/api"
+    base_url = "https://turntable-pro-7.preview.emergentagent.com/api"
     
     print("🎵 Testing Audio Stream Proxy...")
     
