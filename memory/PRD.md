@@ -1,59 +1,65 @@
-# CyberDeck DJ - Pioneer XDJ-RX3 Style
+# CyberDeck DJ - Digital Futuristic DJ Turntable
 
 ## Original Problem Statement
-Build a digital futuristic DJ turntable with all the knobs and lights, picking up hip hop and R&B radio stations with music-reactive interfaces. Reference: Pioneer XDJ-RX3 controller layout.
+Build a digital futuristic DJ turntable with all the knobs and lights, picking up hip hop and R&B radio stations with music-reactive interfaces. The user wants a hybrid design combining turntables with tonearms, a large central visualizer, and Pioneer-style detailed EQ knobs - all in a compact, non-scrolling layout.
 
 ## Architecture
 - **Frontend**: React + Tailwind CSS + Framer Motion + Web Audio API
 - **Backend**: FastAPI + Python + httpx
-- **Database**: MongoDB
-- **Radio**: Radio Browser API
+- **Database**: MongoDB (for favorites)
+- **Radio**: Radio Browser API + hardcoded stations in StationBrowser
 
-## Features Implemented (v4.0 Pioneer Style)
+## Features Implemented
+
+### Layout (Compact, Non-Scrolling)
+- [x] Top section: Dual turntables with tonearms + central spectrum visualizer + crossfader + master knobs
+- [x] Bottom section: Two deck panels side by side with all controls
+- [x] Everything visible in 1920x800 viewport without scrolling
+- [x] No "0.00" placeholders - shows "NO SIGNAL" when idle
 
 ### Per Deck (A & B):
-- [x] **Large Jog Wheel** with rainbow center artwork and LED ring
-- [x] **Position marker** that moves with rotation
-- [x] **Touch-sensitive interaction** for scratching
-- [x] **Waveform Display** with:
-  - Track name + elapsed time
-  - BPM detection display
-  - Beat grid markers (orange)
-  - Scrolling playhead
-- [x] **Mode Buttons**: SLIP, QUANTIZE, VINYL/CDJ
-- [x] **Loop Section**: Toggle + IN/OUT + size buttons (1,2,4,8,16,32)
-- [x] **Transport**: SYNC, KEY lock, REV
-- [x] **Tempo Slider** with ±8% range
-- [x] **CUE + PLAY/PAUSE** buttons with green illuminated rings
-- [x] **TRACK/SEARCH** buttons
-- [x] **8 Colorful Performance Pads** (Red, Yellow, Blue, Green)
-- [x] **4 Pad Modes**: HOT CUE, BEAT LOOP, SLIP LOOP, BEAT JUMP
+- [x] Vinyl turntable with rotating record and animated tonearm
+- [x] BPM detection display
+- [x] Waveform visualization (reactive to music)
+- [x] Transport: CUE, PLAY/PAUSE, SYNC buttons
+- [x] Loop section: Toggle + size buttons (1, 2, 4, 8)
+- [x] 8 Hot Cue Pads
+- [x] Pitch slider with key lock
+- [x] 3-band EQ with Pioneer-style knobs (HI, MID, LOW)
+- [x] VU meters (L/R)
+- [x] GAIN knob + Volume fader
+- [x] FX Rack: ECHO, REVERB, FILTER, WET knobs
 
 ### Central Mixer:
-- [x] **CH 1 & CH 2 Channel Strips** with:
-  - TRIM knob
-  - 3-band EQ (HI, MID, LOW)
-  - COLOR FX knob (gold)
-  - Vertical VU meter
-  - Channel fader
-  - CUE button (orange)
-- [x] **Master Section**: MASTER + BOOTH volume knobs
-- [x] **Sound Color FX**: SPACE, FILTER, CRUSH, NOISE buttons
-- [x] **Crossfader** with visual indicators
-- [x] **Headphones**: MIXING + LEVEL knobs
+- [x] Spectrum/oscilloscope visualizer
+- [x] Crossfader (A/B)
+- [x] MASTER volume knob
+- [x] BOOTH volume knob
+- [x] CUE (headphones) knob
 
 ### System Features:
-- [x] **Dual Visualizer** with spectrum + waveform
-- [x] **Recording** to WebM
-- [x] **Keyboard Shortcuts** (Space, A/B, Q/W, S, R, arrows, ?)
-- [x] **Station Browser** with genres
+- [x] Compact header with CYBERDECK branding
+- [x] REC button in header for mix recording
+- [x] Station Browser with genre tabs (HIP HOP, R&B, TRAP, SOUL)
+- [x] Keyboard shortcuts (Space=play, A/B=deck select, S=stations, R=record)
+- [x] Backend CORS proxy for audio streaming
+- [x] "LOAD A STATION TO BEGIN" empty state prompt
 
-## Testing Results
-- Frontend: 100% ✅
-- Backend: 100% ✅
+## Testing Results (Latest - Iteration 6)
+- Frontend: 100% (18/18 features verified)
+- Backend: 100% (14/14 tests passed)
 
 ## Date Log
 - 2026-03-06: v1.0 - Single deck MVP
 - 2026-03-06: v2.0 - Dual deck + effects
 - 2026-03-06: v3.0 - Full deck controls
 - 2026-03-06: v4.0 - Pioneer XDJ-RX3 style redesign
+- 2026-03-06: v5.0 - Hybrid design (turntables + Pioneer knobs)
+- 2026-03-06: v6.0 - Compact non-scrolling layout with 2-column deck panels
+
+## Backlog
+- P1: Refine recording functionality (save/download recorded mixes)
+- P1: Improve keyboard shortcuts + help modal
+- P2: Enhance audio effects (Echo, Reverb, Filter) with more parameters
+- P2: Add data-testid attributes for better test coverage
+- P3: Clean up unused component files (PioneerDeck.js, FullDeckControls.jsx, etc.)
