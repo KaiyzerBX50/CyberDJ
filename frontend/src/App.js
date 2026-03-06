@@ -254,7 +254,7 @@ const DeckPanel = ({ deck, deckId }) => {
   const padModes = ['HOT CUE', 'BEAT LOOP', 'SLIP LOOP', 'BEAT JUMP'];
 
   return (
-    <div className="flex-1 rounded-lg border p-2 flex flex-col gap-1.5 min-h-0 overflow-hidden" data-testid={`deck-panel-${deckId.toLowerCase()}`} style={{ background: 'linear-gradient(180deg, #131313, #0a0a0a)', borderColor: c + '25' }}>
+    <div className="flex-1 rounded-lg border p-2.5 flex flex-col gap-2 min-h-0 overflow-hidden" data-testid={`deck-panel-${deckId.toLowerCase()}`} style={{ background: 'linear-gradient(180deg, #131313, #0a0a0a)', borderColor: c + '25' }}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
@@ -332,11 +332,11 @@ const DeckPanel = ({ deck, deckId }) => {
       </div>
 
       {/* Pads */}
-      <div className="grid grid-cols-4 gap-1">
+      <div className="grid grid-cols-4 gap-1 flex-1 min-h-0">
         {[1,2,3,4,5,6,7,8].map(n => (
           <button key={n} data-testid={`pad-${n}-${deckId.toLowerCase()}`}
             onClick={() => setActivePads(p => p.includes(n) ? p.filter(x => x !== n) : [...p, n])}
-            className="rounded text-xs font-bold transition-all flex items-center justify-center py-3"
+            className="rounded text-xs font-bold transition-all flex items-center justify-center"
             style={{ background: activePads.includes(n) ? '#3a3a3a' : '#151515', border: `1px solid ${activePads.includes(n) ? '#555' : '#252525'}`, color: activePads.includes(n) ? '#fff' : '#444' }}>
             {n}
           </button>
@@ -383,7 +383,7 @@ const DeckPanel = ({ deck, deckId }) => {
       </div>
 
       {/* Track Info Bar */}
-      <div className="flex items-center justify-between px-2 py-1.5 rounded bg-black/40 border border-white/5 shrink-0 mt-auto" data-testid={`track-info-${deckId.toLowerCase()}`}>
+      <div className="flex items-center justify-between px-2 py-1.5 rounded bg-black/40 border border-white/5 shrink-0" data-testid={`track-info-${deckId.toLowerCase()}`}>
         {deck.isPlaying ? (
           <>
             <div className="flex items-center gap-2">
@@ -491,13 +491,15 @@ function App() {
       </header>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col min-h-0 p-3 gap-2">
+      <div className="flex-1 flex flex-col min-h-0 px-3 py-3 gap-3">
         {/* TOP ROW: Turntables + Visualizer + Crossfader */}
         <div className="shrink-0 flex items-center justify-center gap-6">
           <VinylTurntable isPlaying={deckA.isPlaying} analyserData={deckA.analyserData} deckId="A" currentStation={deckA.currentStation} rotation={rotationA} />
-          <div className="flex-1 max-w-[520px] space-y-1">
+          <div className="flex-1 max-w-[520px] flex flex-col justify-center gap-1.5" style={{ minHeight: 190 }}>
             <SpectrumVisualizer deckAData={deckA.analyserData} deckBData={deckB.analyserData} isPlayingA={deckA.isPlaying} isPlayingB={deckB.isPlaying} />
-            <Crossfader value={crossfade} onChange={setCrossfade} />
+            <div>
+              <Crossfader value={crossfade} onChange={setCrossfade} />
+            </div>
           </div>
           <VinylTurntable isPlaying={deckB.isPlaying} analyserData={deckB.analyserData} deckId="B" currentStation={deckB.currentStation} rotation={rotationB} />
         </div>
