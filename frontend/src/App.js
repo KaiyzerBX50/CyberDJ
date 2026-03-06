@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Radio, Disc3, Keyboard, Info } from "lucide-react";
 import { DualTurntable } from "./components/DualTurntable";
 import { DualVisualizer } from "./components/DualVisualizer";
-import { DeckControls } from "./components/DeckControls";
+import { FullDeckControls } from "./components/FullDeckControls";
 import { Crossfader } from "./components/Crossfader";
 import { StationBrowser } from "./components/StationBrowser";
 import { RecordingPanel } from "./components/RecordingPanel";
@@ -412,30 +412,35 @@ function App() {
             </div>
 
             {/* Deck Controls Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
               <motion.div
                 initial={{ x: -30, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.9 }}
               >
-                <DeckControls
+                <FullDeckControls
                   deckId="A"
                   isPlaying={deckA.isPlaying}
                   isLoading={deckA.isLoading}
                   volume={deckA.volume}
                   bass={deckA.bass}
+                  mid={deckA.mid}
                   treble={deckA.treble}
                   echo={deckA.echo}
                   reverb={deckA.reverb}
                   filter={deckA.filter}
+                  pitch={deckA.pitch}
                   analyserData={deckA.analyserData}
+                  waveformData={deckA.waveformData}
                   onTogglePlay={deckA.togglePlayPause}
                   onVolumeChange={deckA.updateVolume}
                   onBassChange={deckA.updateBass}
+                  onMidChange={deckA.updateMid}
                   onTrebleChange={deckA.updateTreble}
                   onEchoChange={deckA.updateEcho}
                   onReverbChange={deckA.updateReverb}
                   onFilterChange={deckA.updateFilter}
+                  onPitchChange={deckA.updatePitch}
                   currentStation={deckA.currentStation}
                   isActive={activeDeck === 'A'}
                   onActivate={() => setActiveDeck('A')}
@@ -446,24 +451,29 @@ function App() {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.9 }}
               >
-                <DeckControls
+                <FullDeckControls
                   deckId="B"
                   isPlaying={deckB.isPlaying}
                   isLoading={deckB.isLoading}
                   volume={deckB.volume}
                   bass={deckB.bass}
+                  mid={deckB.mid}
                   treble={deckB.treble}
                   echo={deckB.echo}
                   reverb={deckB.reverb}
                   filter={deckB.filter}
+                  pitch={deckB.pitch}
                   analyserData={deckB.analyserData}
+                  waveformData={deckB.waveformData}
                   onTogglePlay={deckB.togglePlayPause}
                   onVolumeChange={deckB.updateVolume}
                   onBassChange={deckB.updateBass}
+                  onMidChange={deckB.updateMid}
                   onTrebleChange={deckB.updateTreble}
                   onEchoChange={deckB.updateEcho}
                   onReverbChange={deckB.updateReverb}
                   onFilterChange={deckB.updateFilter}
+                  onPitchChange={deckB.updatePitch}
                   currentStation={deckB.currentStation}
                   isActive={activeDeck === 'B'}
                   onActivate={() => setActiveDeck('B')}

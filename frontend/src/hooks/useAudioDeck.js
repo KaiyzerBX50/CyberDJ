@@ -7,10 +7,12 @@ export const useAudioDeck = (deckId = 'A') => {
   const [currentStation, setCurrentStation] = useState(null);
   const [volume, setVolume] = useState(0.75);
   const [bass, setBass] = useState(0);
+  const [mid, setMid] = useState(0);
   const [treble, setTreble] = useState(0);
   const [echo, setEcho] = useState(0);
   const [reverb, setReverb] = useState(0);
   const [filter, setFilter] = useState(0); // -1 = low pass, 0 = off, 1 = high pass
+  const [pitch, setPitch] = useState(0); // -1 to 1 = -8% to +8%
   const [analyserData, setAnalyserData] = useState(new Uint8Array(128));
   const [waveformData, setWaveformData] = useState(new Uint8Array(128));
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +24,7 @@ export const useAudioDeck = (deckId = 'A') => {
   const sourceRef = useRef(null);
   const gainNodeRef = useRef(null);
   const bassFilterRef = useRef(null);
+  const midFilterRef = useRef(null);
   const trebleFilterRef = useRef(null);
   const delayNodeRef = useRef(null);
   const delayGainRef = useRef(null);
@@ -66,6 +69,13 @@ export const useAudioDeck = (deckId = 'A') => {
       bassFilterRef.current.type = 'lowshelf';
       bassFilterRef.current.frequency.value = 200;
       bassFilterRef.current.gain.value = bass;
+
+      // Create mid filter (peaking)
+      midFilterRef.current = audioContextRef.current.createBiquadFilter();
+      midFilterRef.current.type = 'peaking';
+      midFilterRef.current.frequency.value = 1000;
+      midFilterRef.current.Q.value = 1;
+      midFilterRef.current.gain.value = mid;
       
       // Create treble filter (high shelf)
       trebleFilterRef.current = audioContextRef.current.createBiquadFilter();
@@ -105,9 +115,10 @@ export const useAudioDeck = (deckId = 'A') => {
     try {
       sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
       
-      // Main chain: source -> bass -> treble -> filter -> gain -> analyser -> output
+      // Main chain: source -> bass -> mid -> treble -> filter -> gain -> analyser -> output
       sourceRef.current.connect(bassFilterRef.current);
-      bassFilterRef.current.connect(trebleFilterRef.current);
+      bassFilterRef.current.connect(midFilterRef.current);
+      midFilterRef.current.connect(trebleFilterRef.current);
       trebleFilterRef.current.connect(filterNodeRef.current);
       filterNodeRef.current.connect(gainNodeRef.current);
       
@@ -243,11 +254,28 @@ export const useAudioDeck = (deckId = 'A') => {
     }
   }, []);
 
+  // Update mid
+  const updateMid = useCallback((newMid) => {
+    setMid(newMid);
+    if (midFilterRef.current) {
+      midFilterRef.current.gain.value = newMid * 10;
+    }
+  }, []);
+
   // Update treble
   const updateTreble = useCallback((newTreble) => {
     setTreble(newTreble);
     if (trebleFilterRef.current) {
       trebleFilterRef.current.gain.value = newTreble * 10;
+    }
+  }, []);
+
+  // Update pitch (playback rate)
+  const updatePitch = useCallback((newPitch) => {
+    setPitch(newPitch);
+    if (audioRef.current) {
+      // Convert -1 to 1 range to 0.92 to 1.08 playback rate
+      audioRef.current.playbackRate = 1 + (newPitch * 0.08);
     }
   }, []);
 
@@ -316,20 +344,24 @@ export const useAudioDeck = (deckId = 'A') => {
     currentStation,
     volume,
     bass,
+    mid,
     treble,
     echo,
     reverb,
     filter,
+    pitch,
     analyserData,
     waveformData,
     playStation,
     togglePlayPause,
     updateVolume,
     updateBass,
+    updateMid,
     updateTreble,
     updateEcho,
     updateReverb,
     updateFilter,
+    updatePitch,
     getOutputNode,
     audioContext: audioContextRef.current,
   };
