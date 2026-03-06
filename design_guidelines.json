@@ -1,0 +1,109 @@
+{
+  "project_name": "CyberDeck_Turntable",
+  "design_philosophy": {
+    "theme": "Dark",
+    "mood": "Cyberpunk, High-Fidelity, Nightclub, Retro-Futurism",
+    "core_concept": "Digital Tactility - Interfaces that feel physical but look impossible.",
+    "persona": "E1 (The Anti-AI Designer)"
+  },
+  "typography": {
+    "font_family": {
+      "headings": "\"Rajdhani\", \"Orbitron\", \"Arial Black\", sans-serif",
+      "body": "\"JetBrains Mono\", \"Courier New\", monospace",
+      "ui_labels": "\"Inter\", system-ui, sans-serif"
+    },
+    "scale": {
+      "h1": "text-5xl md:text-7xl font-bold tracking-tighter uppercase glow-text",
+      "h2": "text-3xl md:text-4xl font-semibold tracking-wide uppercase",
+      "label": "text-xs font-mono tracking-[0.2em] text-muted-foreground uppercase"
+    }
+  },
+  "colors": {
+    "background": {
+      "base": "#050505",
+      "surface": "#0A0A0A",
+      "panel": "#111111"
+    },
+    "primary": {
+      "cyan": "#00F0FF",
+      "magenta": "#FF003C",
+      "lime": "#39FF14"
+    },
+    "gradients": {
+      "metal": "linear-gradient(145deg, #1a1a1a, #0a0a0a)",
+      "vinyl": "conic-gradient(from 0deg, #111, #222, #111, #333, #111)",
+      "glow": "radial-gradient(circle, rgba(0,240,255,0.1) 0%, rgba(0,0,0,0) 70%)"
+    },
+    "utility": {
+      "border": "rgba(255, 255, 255, 0.1)",
+      "active_led": "#39FF14",
+      "inactive_led": "#1a4d1a"
+    }
+  },
+  "layout_strategy": {
+    "grid_system": "The Cockpit",
+    "structure": [
+      "Header (Status Bar / Mode Selector)",
+      "Main Deck (Turntable + Waveform)",
+      "Control Module (Knobs, Sliders, EQ)",
+      "Crate (Slide-over Station Browser)"
+    ],
+    "spacing": "Dense but separated by distinct 'panel' borders."
+  },
+  "components": {
+    "turntable": {
+      "description": "The Hero Element. A realistic CSS/SVG composed vinyl record.",
+      "features": [
+        "Spins when playing (use framer-motion animate={{ rotate: 360 }})",
+        "Stop/Start inertia (doesn't stop instantly)",
+        "Tonearm animation (moves to record edge on play)",
+        "Center label displays station art or generic techno logo"
+      ],
+      "styling": "rounded-full shadow-2xl border-4 border-[#222]"
+    },
+    "visualizer": {
+      "description": "Real-time frequency analysis using HTML5 Canvas.",
+      "styles": [
+        "Spectrum Analyzer (Bar Graph) - Neon Bars",
+        "Oscilloscope (Line) - Glowing thin line"
+      ],
+      "placement": "Under the turntable or integrated into the 'Mixer' section."
+    },
+    "knob": {
+      "description": "Rotatable SVG control.",
+      "behavior": "Drag up/down to rotate.",
+      "visuals": "Glowing ring indicating value. Tick marks around the outside."
+    },
+    "station_browser": {
+      "description": "A 'Crate' of records.",
+      "component": "Shadcn Sheet or Dialog",
+      "style": "Data Terminal look. Monospace list items. Hover effects scanlines."
+    }
+  },
+  "tech_stack_instructions": {
+    "audio": "Use standard HTML5 Audio API + Web Audio API (AudioContext) for visualization.",
+    "radio_api": "https://de1.api.radio-browser.info/json/stations/search?limit=20&tag=hip hop",
+    "animation": "framer-motion for spins and transitions.",
+    "icons": "lucide-react"
+  },
+  "universal_guidelines": [
+    "NEVER use generic gradients. Use 'noise' textures or distinct solid panels.",
+    "All interactive elements must have a :hover state that brightens or glows.",
+    "Use 'data-testid' on all controls.",
+    "Dark Mode is the ONLY mode."
+  ],
+  "image_urls": {
+    "background_texture": "https://images.unsplash.com/photo-1616651283320-ee68a1113d94?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "vinyl_fallback": "https://images.unsplash.com/photo-1573247374056-ba7c8c5ca4fa?crop=entropy&cs=srgb&fm=jpg&q=85"
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALL dependencies: framer-motion, lucide-react (if missing).",
+    "2. CREATE a 'useAudio' hook to handle the AudioContext, AnalyserNode, and HTMLAudioElement source.",
+    "3. IMPLEMENT the 'Turntable' component using pure CSS for the record grooves and Framer Motion for the spin.",
+    "4. BUILD the 'Knob' component. It must be functional (draggable).",
+    "5. FETCH radio stations using the Radio Browser API. Filter for 'Hip Hop', 'RnB', 'Trap'.",
+    "6. CONNECT the audio data to a Canvas element for the visualizer.",
+    "7. STYLE everything with the 'CyberDeck' aesthetic defined in colors/typography.",
+    "8. ENSURE the UI feels 'heavy' and 'expensive' (slow transitions, detailed borders)."
+  ]
+}
