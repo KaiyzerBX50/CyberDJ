@@ -13,7 +13,7 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
   const c = deckId === 'A' ? '#00F0FF' : '#FF003C';
   const arm = isPlaying ? -8 : -35;
   return (
-    <div className="relative overflow-hidden" data-testid={`turntable-${deckId.toLowerCase()}`}>
+    <div className="relative" data-testid={`turntable-${deckId.toLowerCase()}`}>
       <div className="relative" style={{ width: 190, height: 190 }}>
         <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(145deg, #1a1a1a, #0a0a0a)', boxShadow: `inset 0 0 30px rgba(0,0,0,0.8), 0 0 ${isPlaying ? 22 : 8}px ${c}30`, border: `2px solid ${c}25` }} />
         <div className="absolute inset-2 rounded-full" style={{ background: `conic-gradient(${c}15, ${c}40, ${c}15, ${c}40, ${c}15)`, opacity: isPlaying ? 0.5 : 0.15, filter: 'blur(2px)' }} />
@@ -375,12 +375,12 @@ const DeckPanel = ({ deck, deckId }) => {
               key={s.id}
               data-testid={`sampler-${s.id}-${deckId.toLowerCase()}`}
               onClick={() => setActiveSampler(activeSampler === s.id ? null : s.id)}
-              className="py-1.5 rounded text-[7px] font-bold uppercase tracking-wider transition-all"
+              className="py-2 rounded text-[7px] font-bold uppercase tracking-wider transition-all"
               style={{
-                background: activeSampler === s.id ? s.color + '40' : '#111',
-                border: `1px solid ${activeSampler === s.id ? s.color : '#222'}`,
-                color: activeSampler === s.id ? s.color : '#3a3a3a',
-                boxShadow: activeSampler === s.id ? `0 0 8px ${s.color}30` : 'none',
+                background: activeSampler === s.id ? s.color + '60' : s.color + '20',
+                border: `1px solid ${activeSampler === s.id ? s.color : s.color + '50'}`,
+                color: activeSampler === s.id ? '#fff' : s.color,
+                boxShadow: activeSampler === s.id ? `0 0 12px ${s.color}40` : 'none',
               }}
             >
               {s.label}
@@ -512,7 +512,7 @@ function App() {
         </div>
 
         {/* BOTTOM ROW: Deck A | Center Mixer | Deck B */}
-        <div className="flex-1 flex gap-2 min-h-0">
+        <div className="flex-1 flex gap-2 min-h-0 relative z-10">
           <DeckPanel deck={deckA} deckId="A" />
           <CenterMixer deckA={deckA} deckB={deckB} />
           <DeckPanel deck={deckB} deckId="B" />
