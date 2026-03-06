@@ -1,7 +1,7 @@
 # CyberDeck DJ - Digital Futuristic DJ Turntable
 
 ## Original Problem Statement
-Build a digital futuristic DJ turntable with all the knobs and lights, picking up hip hop and R&B radio stations with music-reactive interfaces. The user wants a hybrid design combining turntables with tonearms, a large central visualizer, and Pioneer-style detailed EQ knobs - all in a compact, non-scrolling layout.
+Build a digital futuristic DJ turntable with all the knobs and lights, picking up hip hop and R&B radio stations with music-reactive interfaces. The user wants a hybrid design combining turntables with tonearms, a large central visualizer, and Pioneer-style detailed EQ knobs - all in a compact, screen-filling layout.
 
 ## Architecture
 - **Frontend**: React + Tailwind CSS + Framer Motion + Web Audio API
@@ -11,9 +11,9 @@ Build a digital futuristic DJ turntable with all the knobs and lights, picking u
 
 ## Features Implemented
 
-### Layout (Compact, Non-Scrolling)
-- [x] Top section: Dual turntables with tonearms + central spectrum visualizer + crossfader + master knobs
-- [x] Bottom section: Two deck panels side by side with all controls
+### Layout (Screen-Filling, Non-Scrolling)
+- [x] Top section: Dual turntables (190px) with tonearms + central spectrum visualizer + crossfader
+- [x] Bottom section: 3-column layout — Deck A | Center Mixer | Deck B
 - [x] Everything visible in 1920x800 viewport without scrolling
 - [x] No "0.00" placeholders - shows "NO SIGNAL" when idle
 
@@ -22,44 +22,43 @@ Build a digital futuristic DJ turntable with all the knobs and lights, picking u
 - [x] BPM detection display
 - [x] Waveform visualization (reactive to music)
 - [x] Transport: CUE, PLAY/PAUSE, SYNC buttons
-- [x] Loop section: Toggle + size buttons (1, 2, 4, 8)
+- [x] Loop section with 1, 2, 4, 8, 16, 32 sizes
+- [x] Pad Mode Selectors: HOT CUE, BEAT LOOP, SLIP LOOP, BEAT JUMP
 - [x] 8 Hot Cue Pads
 - [x] Pitch slider with key lock
-- [x] 3-band EQ with Pioneer-style knobs (HI, MID, LOW)
-- [x] VU meters (L/R)
-- [x] GAIN knob + Volume fader
-- [x] FX Rack: ECHO, REVERB, FILTER, WET knobs
+- [x] FX Rack: ECHO, REVERB, FILTER, DRY/WET knobs
 
-### Central Mixer:
-- [x] Spectrum/oscilloscope visualizer
-- [x] Crossfader (A/B)
-- [x] MASTER volume knob
-- [x] BOOTH volume knob
-- [x] CUE (headphones) knob
+### Center Mixer Strip:
+- [x] MASTER VU meters (L/R)
+- [x] MASTER + BOOTH knobs
+- [x] CH1 (Deck A) strip: TRIM, HI, MID, LOW knobs + VU + fader
+- [x] CH2 (Deck B) strip: TRIM, HI, MID, LOW knobs + VU + fader
+- [x] CUE + LVL headphone knobs
+
+### Spectrum Visualizer:
+- [x] Real-time frequency bars (BASS=red, MID=cyan, HIGH=green)
+- [x] Oscilloscope waveform overlay
+- [x] Deck A/B status indicators
 
 ### System Features:
-- [x] Compact header with CYBERDECK branding
+- [x] Header with CYBERDECK branding
 - [x] REC button in header for mix recording
 - [x] Station Browser with genre tabs (HIP HOP, R&B, TRAP, SOUL)
 - [x] Keyboard shortcuts (Space=play, A/B=deck select, S=stations, R=record)
 - [x] Backend CORS proxy for audio streaming
 - [x] "LOAD A STATION TO BEGIN" empty state prompt
 
-## Testing Results (Latest - Iteration 6)
-- Frontend: 100% (18/18 features verified)
+## Testing Results (Latest - Iteration 7)
+- Frontend: 100% (26 features verified)
 - Backend: 100% (14/14 tests passed)
 
 ## Date Log
-- 2026-03-06: v1.0 - Single deck MVP
-- 2026-03-06: v2.0 - Dual deck + effects
-- 2026-03-06: v3.0 - Full deck controls
-- 2026-03-06: v4.0 - Pioneer XDJ-RX3 style redesign
-- 2026-03-06: v5.0 - Hybrid design (turntables + Pioneer knobs)
-- 2026-03-06: v6.0 - Compact non-scrolling layout with 2-column deck panels
+- 2026-03-06: v1-v5: Initial MVP through hybrid design iterations
+- 2026-03-06: v6.0 - Compact non-scrolling layout
+- 2026-03-06: v7.0 - Scaled-up layout with center mixer strip, pad mode selectors, extended loops
 
 ## Backlog
 - P1: Refine recording functionality (save/download recorded mixes)
 - P1: Improve keyboard shortcuts + help modal
-- P2: Enhance audio effects (Echo, Reverb, Filter) with more parameters
-- P2: Add data-testid attributes for better test coverage
-- P3: Clean up unused component files (PioneerDeck.js, FullDeckControls.jsx, etc.)
+- P2: Enhance audio effects with actual audio processing
+- P3: Clean up unused component files from previous iterations
