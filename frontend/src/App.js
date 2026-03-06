@@ -14,34 +14,34 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
   const arm = isPlaying ? -8 : -35;
   return (
     <div className="relative" data-testid={`turntable-${deckId.toLowerCase()}`}>
-      <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1">
+      <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
         <div className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'animate-pulse' : ''}`} style={{ background: isPlaying ? '#39FF14' : '#333' }} />
-        <span className="text-[8px] font-['Orbitron']" style={{ color: c }}>DECK {deckId}</span>
+        <span className="text-[9px] font-['Orbitron'] font-bold" style={{ color: c }}>DECK {deckId}</span>
       </div>
-      <div className="relative" style={{ width: 150, height: 150 }}>
-        <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(145deg, #1a1a1a, #0a0a0a)', boxShadow: `inset 0 0 25px rgba(0,0,0,0.8), 0 0 ${isPlaying ? 18 : 6}px ${c}30`, border: `2px solid ${c}25` }} />
-        <div className="absolute inset-1.5 rounded-full" style={{ background: `conic-gradient(${c}15, ${c}40, ${c}15, ${c}40, ${c}15)`, opacity: isPlaying ? 0.5 : 0.15, filter: 'blur(2px)' }} />
+      <div className="relative" style={{ width: 190, height: 190 }}>
+        <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(145deg, #1a1a1a, #0a0a0a)', boxShadow: `inset 0 0 30px rgba(0,0,0,0.8), 0 0 ${isPlaying ? 22 : 8}px ${c}30`, border: `2px solid ${c}25` }} />
+        <div className="absolute inset-2 rounded-full" style={{ background: `conic-gradient(${c}15, ${c}40, ${c}15, ${c}40, ${c}15)`, opacity: isPlaying ? 0.5 : 0.15, filter: 'blur(2px)' }} />
         <motion.div className="absolute inset-3 rounded-full" style={{ rotate: rotation }}>
           <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(from ${rotation}deg, #111, #1a1a1a, #111, #181818, #111, #1a1a1a, #111, #181818)` }} />
-          {[...Array(8)].map((_, i) => <div key={i} className="absolute rounded-full border border-white/5" style={{ inset: `${8 + i * 7}%` }} />)}
-          <div className="absolute rounded-full flex items-center justify-center" style={{ inset: '33%', background: deckId === 'A' ? 'linear-gradient(135deg, #00F0FF, #0066FF)' : 'linear-gradient(135deg, #FF003C, #FF6600)', boxShadow: `0 0 12px ${c}50` }}>
+          {[...Array(10)].map((_, i) => <div key={i} className="absolute rounded-full border border-white/5" style={{ inset: `${6 + i * 6}%` }} />)}
+          <div className="absolute rounded-full flex items-center justify-center" style={{ inset: '30%', background: deckId === 'A' ? 'linear-gradient(135deg, #00F0FF, #0066FF)' : 'linear-gradient(135deg, #FF003C, #FF6600)', boxShadow: `0 0 15px ${c}50` }}>
             <div className="text-center">
-              <div className="text-[6px] font-bold text-white uppercase tracking-wider">{currentStation?.name?.slice(0, 6) || 'DECK ' + deckId}</div>
-              <div className="text-[5px] text-white/60">{isPlaying ? 'ON AIR' : 'READY'}</div>
+              <div className="text-[7px] font-bold text-white uppercase tracking-wider">{currentStation?.name?.slice(0, 8) || 'DECK ' + deckId}</div>
+              <div className="text-[5px] text-white/70">{isPlaying ? 'ON AIR' : 'READY'}</div>
             </div>
-            <div className="absolute w-2 h-2 rounded-full bg-black" />
+            <div className="absolute w-2.5 h-2.5 rounded-full bg-black" />
           </div>
-          <div className="absolute top-1 left-1/2 w-1 h-2.5 -translate-x-1/2 rounded-full" style={{ background: c, boxShadow: `0 0 5px ${c}` }} />
+          <div className="absolute top-1.5 left-1/2 w-1 h-3 -translate-x-1/2 rounded-full" style={{ background: c, boxShadow: `0 0 6px ${c}` }} />
         </motion.div>
-        <motion.div className="absolute -right-2 top-[15%] origin-top-right" animate={{ rotate: arm }} transition={{ type: 'spring', stiffness: 80, damping: 15 }}>
-          <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full" style={{ background: 'linear-gradient(145deg, #333, #1a1a1a)', boxShadow: '0 2px 5px rgba(0,0,0,0.5)' }} />
-          <div className="w-[85px] h-1 rounded-full" style={{ background: 'linear-gradient(to bottom, #555, #333)' }} />
-          <div className="absolute left-0 top-0 w-4 h-2 -translate-x-3" style={{ background: 'linear-gradient(to bottom, #444, #222)', clipPath: 'polygon(100% 0, 100% 100%, 0 70%, 0 30%)' }}>
-            <div className={`absolute bottom-0.5 left-0.5 w-0.5 h-0.5 rounded-full ${isPlaying ? 'bg-[#39FF14]' : 'bg-[#333]'}`} style={{ boxShadow: isPlaying ? '0 0 3px #39FF14' : 'none' }} />
+        <motion.div className="absolute -right-3 top-[14%] origin-top-right" animate={{ rotate: arm }} transition={{ type: 'spring', stiffness: 80, damping: 15 }}>
+          <div className="absolute -top-3 -right-3 w-9 h-9 rounded-full" style={{ background: 'linear-gradient(145deg, #333, #1a1a1a)', boxShadow: '0 2px 6px rgba(0,0,0,0.5)' }} />
+          <div className="w-[105px] h-1.5 rounded-full" style={{ background: 'linear-gradient(to bottom, #555, #333)' }} />
+          <div className="absolute left-0 top-0 w-5 h-2.5 -translate-x-4" style={{ background: 'linear-gradient(to bottom, #444, #222)', clipPath: 'polygon(100% 0, 100% 100%, 0 70%, 0 30%)' }}>
+            <div className={`absolute bottom-0.5 left-0.5 w-1 h-1 rounded-full ${isPlaying ? 'bg-[#39FF14]' : 'bg-[#333]'}`} style={{ boxShadow: isPlaying ? '0 0 4px #39FF14' : 'none' }} />
           </div>
         </motion.div>
-        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-0.5">
-          {[...Array(5)].map((_, i) => <div key={i} className="w-1 h-1 rounded-full" style={{ background: isPlaying && analyserData[i * 20] > 100 ? c : '#222', boxShadow: isPlaying && analyserData[i * 20] > 100 ? `0 0 3px ${c}` : 'none' }} />)}
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
+          {[...Array(5)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: isPlaying && analyserData[i * 20] > 100 ? c : '#222', boxShadow: isPlaying && analyserData[i * 20] > 100 ? `0 0 4px ${c}` : 'none' }} />)}
         </div>
       </div>
     </div>
@@ -76,10 +76,10 @@ const SpectrumVisualizer = ({ deckAData, deckBData, isPlayingA, isPlayingB }) =>
         ctx.fillStyle = g; ctx.fillRect(x, y, bw, bh);
         ctx.fillStyle = col; ctx.fillRect(x, y - 2, bw, 1.5);
       }
-      ctx.strokeStyle = '#00F0FF50'; ctx.lineWidth = 1; ctx.beginPath();
+      ctx.strokeStyle = '#00F0FF50'; ctx.lineWidth = 1.5; ctx.beginPath();
       const w = isPlayingA ? deckAData : deckBData;
       for (let i = 0; i < w.length; i++) {
-        const x = (i / w.length) * width, y = ((w[i] - 128) / 128) * 20 + 18;
+        const x = (i / w.length) * width, y = ((w[i] - 128) / 128) * 25 + 22;
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
       ctx.stroke();
@@ -90,34 +90,39 @@ const SpectrumVisualizer = ({ deckAData, deckBData, isPlayingA, isPlayingB }) =>
   }, [deckAData, deckBData, isPlayingA, isPlayingB]);
 
   return (
-    <div className="relative rounded overflow-hidden border border-white/10 bg-[#080808]" data-testid="spectrum-visualizer">
-      <div className="absolute top-1 left-2 flex items-center gap-2 text-[8px] font-mono z-10">
-        <span className={`flex items-center gap-0.5 ${isPlayingA ? 'text-[#00F0FF]' : 'text-white/20'}`}>
-          <span className={`w-1 h-1 rounded-full ${isPlayingA ? 'bg-[#00F0FF] animate-pulse' : 'bg-white/15'}`} />A
+    <div className="relative rounded-lg overflow-hidden border border-white/10 bg-[#080808]" data-testid="spectrum-visualizer">
+      <div className="absolute top-2 left-3 flex items-center gap-3 text-[9px] font-mono z-10">
+        <span className={`flex items-center gap-1 ${isPlayingA ? 'text-[#00F0FF]' : 'text-white/20'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${isPlayingA ? 'bg-[#00F0FF] animate-pulse' : 'bg-white/15'}`} />DECK A
         </span>
-        <span className={`flex items-center gap-0.5 ${isPlayingB ? 'text-[#FF003C]' : 'text-white/20'}`}>
-          <span className={`w-1 h-1 rounded-full ${isPlayingB ? 'bg-[#FF003C] animate-pulse' : 'bg-white/15'}`} />B
+        <span className={`flex items-center gap-1 ${isPlayingB ? 'text-[#FF003C]' : 'text-white/20'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${isPlayingB ? 'bg-[#FF003C] animate-pulse' : 'bg-white/15'}`} />DECK B
         </span>
       </div>
-      <canvas ref={canvasRef} width={600} height={120} className="w-full h-[110px]" />
+      <div className="absolute bottom-2 left-3 flex gap-3 text-[8px] font-mono text-white/40 z-10">
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#FF003C]" />BASS</span>
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF]" />MID</span>
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#39FF14]" />HIGH</span>
+      </div>
+      <canvas ref={canvasRef} width={700} height={150} className="w-full h-[130px]" />
     </div>
   );
 };
 
 /* ======= PIONEER KNOB ======= */
-const Knob = ({ label, value = 50, color = '#888', size = 34 }) => {
+const Knob = ({ label, value = 50, color = '#888', size = 36 }) => {
   const rot = ((value / 100) * 270) - 135;
   return (
     <div className="flex flex-col items-center">
-      <span className="text-[7px] font-mono text-white/40 uppercase">{label}</span>
+      <span className="text-[7px] font-mono text-white/45 uppercase tracking-wider">{label}</span>
       <div className="relative" style={{ width: size, height: size }}>
-        {[...Array(18)].map((_, i) => {
-          const a = (i / 18) * 270 - 135;
-          return <div key={i} className="absolute w-px h-1 rounded-full" style={{ top: '50%', left: '50%', background: a <= rot ? color : '#252525', transform: `rotate(${a}deg) translateY(-${size / 2 + 1}px)`, transformOrigin: 'center', boxShadow: a <= rot ? `0 0 2px ${color}` : 'none' }} />;
+        {[...Array(20)].map((_, i) => {
+          const a = (i / 20) * 270 - 135;
+          return <div key={i} className="absolute w-px h-1 rounded-full" style={{ top: '50%', left: '50%', background: a <= rot ? color : '#252525', transform: `rotate(${a}deg) translateY(-${size / 2 + 2}px)`, transformOrigin: 'center', boxShadow: a <= rot ? `0 0 2px ${color}` : 'none' }} />;
         })}
-        <div className="absolute inset-0.5 rounded-full" style={{ background: 'linear-gradient(145deg, #484848, #282828)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.4)' }}>
-          <div className="absolute w-px h-2 rounded-full top-0.5 left-1/2" style={{ background: color, transform: `translateX(-50%) rotate(${rot}deg)`, transformOrigin: `50% ${(size - 4) / 2}px`, boxShadow: `0 0 2px ${color}` }} />
-          <div className="absolute inset-[34%] rounded-full" style={{ background: 'radial-gradient(#383838, #202020)' }} />
+        <div className="absolute inset-0.5 rounded-full" style={{ background: 'linear-gradient(145deg, #4a4a4a, #282828)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.4)' }}>
+          <div className="absolute w-px h-2.5 rounded-full top-1 left-1/2" style={{ background: color, transform: `translateX(-50%) rotate(${rot}deg)`, transformOrigin: `50% ${(size - 4) / 2}px`, boxShadow: `0 0 3px ${color}` }} />
+          <div className="absolute inset-[32%] rounded-full" style={{ background: 'radial-gradient(#3a3a3a, #202020)' }} />
         </div>
       </div>
     </div>
@@ -126,52 +131,148 @@ const Knob = ({ label, value = 50, color = '#888', size = 34 }) => {
 
 /* ======= CROSSFADER ======= */
 const Crossfader = ({ value }) => (
-  <div className="flex items-center gap-2 px-3 py-1 rounded bg-black/40 border border-white/8" data-testid="crossfader">
-    <span className="text-[7px] font-mono text-[#00F0FF]">A</span>
-    <div className="relative flex-1 h-4 rounded bg-black/60 border border-white/8">
-      <div className="absolute inset-y-0 left-0.5 right-0.5 rounded" style={{ background: 'linear-gradient(to right, #00F0FF20, transparent 30%, transparent 70%, #FF003C20)' }} />
-      <div className="absolute top-1/2 left-1/2 w-px h-2 -translate-y-1/2 bg-white/20" />
-      <div className="absolute top-1/2 -translate-y-1/2 w-7 h-3 rounded cursor-grab" style={{ left: `calc(${(value + 1) / 2 * 100}% - 14px)`, background: 'linear-gradient(to bottom, #555, #333)', boxShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
-        <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 space-y-px"><div className="h-px bg-white/25" /><div className="h-px bg-white/25" /></div>
+  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/8" data-testid="crossfader">
+    <span className="text-[8px] font-mono text-[#00F0FF] font-bold">A</span>
+    <div className="relative flex-1 h-5 rounded bg-black/60 border border-white/10">
+      <div className="absolute inset-y-0.5 left-1 right-1 rounded" style={{ background: 'linear-gradient(to right, #00F0FF25, transparent 30%, transparent 70%, #FF003C25)' }} />
+      <div className="absolute top-1/2 left-1/2 w-px h-3 -translate-y-1/2 bg-white/25" />
+      <div className="absolute top-1/2 -translate-y-1/2 w-8 h-4 rounded cursor-grab" style={{ left: `calc(${(value + 1) / 2 * 100}% - 16px)`, background: 'linear-gradient(to bottom, #555, #333)', boxShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+        <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 space-y-px"><div className="h-px bg-white/30" /><div className="h-px bg-white/30" /></div>
       </div>
     </div>
-    <span className="text-[7px] font-mono text-[#FF003C]">B</span>
+    <span className="text-[8px] font-mono text-[#FF003C] font-bold">B</span>
   </div>
 );
 
-/* ======= COMPACT DECK PANEL ======= */
+/* ======= CENTER MIXER STRIP ======= */
+const CenterMixer = ({ deckA, deckB }) => {
+  const levelA = deckA.isPlaying ? deckA.analyserData.reduce((a, b) => a + b, 0) / deckA.analyserData.length / 255 : 0;
+  const levelB = deckB.isPlaying ? deckB.analyserData.reduce((a, b) => a + b, 0) / deckB.analyserData.length / 255 : 0;
+  const masterLevel = Math.max(levelA, levelB);
+
+  return (
+    <div className="flex flex-col gap-1 px-1 py-1.5 rounded-lg bg-[#0c0c0c] border border-white/8 w-[130px] shrink-0" data-testid="center-mixer">
+      {/* Master section */}
+      <div className="text-center">
+        <span className="text-[6px] font-mono text-white/30 uppercase tracking-widest">MASTER</span>
+        <div className="flex justify-center gap-0.5 mt-0.5">
+          {['L', 'R'].map(ch => (
+            <div key={ch} className="flex flex-col items-center">
+              <div className="flex flex-col-reverse gap-px">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="w-2 h-1 rounded-sm transition-all" style={{
+                    background: masterLevel > i / 8 ? (i < 5 ? '#39FF14' : i < 7 ? '#FFD700' : '#FF003C') : '#151515',
+                  }} />
+                ))}
+              </div>
+              <span className="text-[5px] text-white/20">{ch}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex justify-around">
+        <Knob label="MSTR" value={75} color="#FF003C" size={22} />
+        <Knob label="BOOTH" value={50} color="#FFD700" size={22} />
+      </div>
+
+      <div className="h-px bg-white/8" />
+
+      {/* Channel strips side by side */}
+      <div className="flex gap-1">
+        {/* CH A */}
+        <div className="flex-1 flex flex-col items-center gap-0.5">
+          <span className="text-[6px] font-['Orbitron'] text-[#00F0FF]">CH 1</span>
+          <Knob label="TRIM" value={50} color="#00F0FF" size={20} />
+          <Knob label="HI" value={50} color="#39FF14" size={20} />
+          <Knob label="MID" value={50} color="#FFD700" size={20} />
+          <Knob label="LOW" value={50} color="#FF003C" size={20} />
+          <div className="flex gap-px">
+            {['L', 'R'].map(ch => (
+              <div key={ch} className="flex flex-col-reverse gap-px">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="w-1 h-1 rounded-sm" style={{
+                    background: levelA > i / 6 ? (i < 4 ? '#39FF14' : i < 5 ? '#FFD700' : '#FF003C') : '#151515',
+                  }} />
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="w-2.5 h-10 bg-black/60 rounded relative border border-white/8">
+            <div className="absolute bottom-0 left-0 right-0 rounded-b" style={{ height: `${deckA.volume * 100}%`, background: '#00F0FF25' }} />
+            <div className="absolute left-1/2 -translate-x-1/2 w-4 h-1.5 bg-gray-400 rounded" style={{ bottom: `${deckA.volume * 85}%` }} />
+          </div>
+        </div>
+
+        {/* CH B */}
+        <div className="flex-1 flex flex-col items-center gap-0.5">
+          <span className="text-[6px] font-['Orbitron'] text-[#FF003C]">CH 2</span>
+          <Knob label="TRIM" value={50} color="#FF003C" size={20} />
+          <Knob label="HI" value={50} color="#39FF14" size={20} />
+          <Knob label="MID" value={50} color="#FFD700" size={20} />
+          <Knob label="LOW" value={50} color="#FF003C" size={20} />
+          <div className="flex gap-px">
+            {['L', 'R'].map(ch => (
+              <div key={ch} className="flex flex-col-reverse gap-px">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="w-1 h-1 rounded-sm" style={{
+                    background: levelB > i / 6 ? (i < 4 ? '#39FF14' : i < 5 ? '#FFD700' : '#FF003C') : '#151515',
+                  }} />
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="w-2.5 h-10 bg-black/60 rounded relative border border-white/8">
+            <div className="absolute bottom-0 left-0 right-0 rounded-b" style={{ height: `${deckB.volume * 100}%`, background: '#FF003C25' }} />
+            <div className="absolute left-1/2 -translate-x-1/2 w-4 h-1.5 bg-gray-400 rounded" style={{ bottom: `${deckB.volume * 85}%` }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Headphones */}
+      <div className="flex justify-around">
+        <Knob label="CUE" value={50} color="#00F0FF" size={20} />
+        <Knob label="LVL" value={60} color="#FFD700" size={20} />
+      </div>
+    </div>
+  );
+};
+
+/* ======= DECK PANEL ======= */
 const DeckPanel = ({ deck, deckId }) => {
   const c = deckId === 'A' ? '#00F0FF' : '#FF003C';
   const [loopActive, setLoopActive] = useState(false);
   const [activePads, setActivePads] = useState([]);
+  const [padMode, setPadMode] = useState('HOT CUE');
   const [keyLock, setKeyLock] = useState(false);
   const bpm = deck.isPlaying ? Math.floor(85 + deck.analyserData.slice(0, 8).reduce((a, b) => a + b, 0) / 32) : null;
-  const level = deck.isPlaying ? deck.analyserData.reduce((a, b) => a + b, 0) / deck.analyserData.length / 255 : 0;
+
+  const padModes = ['HOT CUE', 'BEAT LOOP', 'SLIP LOOP', 'BEAT JUMP'];
 
   return (
-    <div className="rounded-lg border p-2" data-testid={`deck-panel-${deckId.toLowerCase()}`} style={{ background: 'linear-gradient(180deg, #131313, #0a0a0a)', borderColor: c + '25' }}>
-      {/* Row 1: Header + Waveform */}
-      <div className="flex items-center justify-between mb-1">
+    <div className="flex-1 rounded-lg border p-2 flex flex-col gap-1.5 min-h-0 overflow-hidden" data-testid={`deck-panel-${deckId.toLowerCase()}`} style={{ background: 'linear-gradient(180deg, #131313, #0a0a0a)', borderColor: c + '25' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <div className={`w-1.5 h-1.5 rounded-full ${deck.isPlaying ? 'animate-pulse' : ''}`} style={{ background: deck.isPlaying ? '#39FF14' : '#333' }} />
+          <div className={`w-2 h-2 rounded-full ${deck.isPlaying ? 'animate-pulse' : ''}`} style={{ background: deck.isPlaying ? '#39FF14' : '#333' }} />
           <span className="text-[10px] font-['Orbitron'] font-bold" style={{ color: c }}>DECK {deckId}</span>
-          <span className="text-[8px] font-mono text-white/40 truncate max-w-[100px]">{deck.currentStation?.name || ''}</span>
+          <span className="text-[8px] font-mono text-white/40 truncate max-w-[120px]">{deck.currentStation?.name || ''}</span>
         </div>
         <div className="flex items-center gap-2">
           {!deck.currentStation && <span className="text-[8px] font-mono text-white/25">NO SIGNAL</span>}
-          {bpm && <div className="px-1.5 py-px rounded bg-black/50 border border-white/10">
-            <span className="text-sm font-['Orbitron'] font-bold" style={{ color: c }}>{bpm}</span>
+          {bpm && <div className="px-1.5 py-px rounded bg-black/60 border border-white/10">
+            <span className="text-base font-['Orbitron'] font-bold" style={{ color: c }}>{bpm}</span>
             <span className="text-[6px] text-white/35 ml-0.5">BPM</span>
           </div>}
         </div>
       </div>
 
       {/* Waveform */}
-      <div className="h-6 rounded bg-black/50 border border-white/5 mb-1.5 relative overflow-hidden" data-testid={`waveform-${deckId.toLowerCase()}`}>
+      <div className="h-8 rounded bg-black/50 border border-white/5 relative overflow-hidden shrink-0" data-testid={`waveform-${deckId.toLowerCase()}`}>
         {deck.currentStation && deck.isPlaying ? (
           <>
-            <div className="absolute inset-0 flex items-end px-px">
-              {[...Array(50)].map((_, i) => {
+            <div className="absolute inset-0 flex items-end px-0.5">
+              {[...Array(60)].map((_, i) => {
                 const val = deck.waveformData[i * 2] || 128;
                 const h = Math.abs(val - 128) / 128 * 100;
                 return <div key={i} className="flex-1 mx-px rounded-t" style={{ height: `${Math.max(4, h)}%`, background: c, opacity: 0.65 }} />;
@@ -182,88 +283,70 @@ const DeckPanel = ({ deck, deckId }) => {
         ) : <div className="absolute inset-0 flex items-center"><div className="w-full h-px bg-white/6" /></div>}
       </div>
 
-      {/* Row 2: Transport | EQ Knobs */}
-      <div className="flex gap-2 mb-1.5">
-        <div className="flex items-center gap-1.5 flex-1">
-          <button data-testid={`cue-btn-${deckId.toLowerCase()}`} className="px-2 py-1 rounded text-[8px] font-bold bg-[#FF6600]/25 text-[#FF6600] border border-[#FF6600]/30">CUE</button>
-          <button data-testid={`play-pause-${deckId.toLowerCase()}`} onClick={deck.togglePlayPause} disabled={!deck.currentStation}
-            className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0"
-            style={{ background: deck.isPlaying ? '#FF003C' : '#39FF14', boxShadow: `0 0 12px ${deck.isPlaying ? '#FF003C40' : '#39FF1440'}` }}>
-            {deck.isPlaying ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5 text-black ml-0.5" />}
-          </button>
-          <button data-testid={`sync-btn-${deckId.toLowerCase()}`} className="px-2 py-1 rounded text-[8px] font-bold bg-[#00F0FF]/15 text-[#00F0FF] border border-[#00F0FF]/30 flex items-center gap-0.5">
-            <Zap className="w-2 h-2" />SYNC
-          </button>
-        </div>
-        <div className="flex items-center gap-1 px-2 py-1 rounded bg-black/25 shrink-0">
-          <Knob label="HI" value={50} color="#39FF14" size={30} />
-          <Knob label="MID" value={50} color="#FFD700" size={30} />
-          <Knob label="LOW" value={50} color="#FF003C" size={30} />
-        </div>
+      {/* Transport */}
+      <div className="flex items-center justify-between gap-2">
+        <button data-testid={`cue-btn-${deckId.toLowerCase()}`} className="px-3 py-1.5 rounded text-[9px] font-bold bg-[#FF6600]/25 text-[#FF6600] border border-[#FF6600]/40 hover:bg-[#FF6600]/35">CUE</button>
+        <button data-testid={`play-pause-${deckId.toLowerCase()}`} onClick={deck.togglePlayPause} disabled={!deck.currentStation}
+          className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0"
+          style={{ background: deck.isPlaying ? '#FF003C' : '#39FF14', boxShadow: `0 0 16px ${deck.isPlaying ? '#FF003C50' : '#39FF1450'}` }}>
+          {deck.isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
+        </button>
+        <button data-testid={`sync-btn-${deckId.toLowerCase()}`} className="px-3 py-1.5 rounded text-[9px] font-bold bg-[#00F0FF]/15 text-[#00F0FF] border border-[#00F0FF]/40 hover:bg-[#00F0FF]/25 flex items-center gap-1">
+          <Zap className="w-2.5 h-2.5" />SYNC
+        </button>
       </div>
 
-      {/* Row 3: Loop + Pitch | VU + Gain + Vol */}
-      <div className="flex gap-2 mb-1.5">
-        <div className="flex-1 space-y-1">
-          <div className="flex items-center gap-0.5 p-1 rounded bg-black/25">
-            <span className="text-[6px] text-white/30 mr-0.5">LOOP</span>
-            <button onClick={() => setLoopActive(!loopActive)} className={`p-0.5 rounded ${loopActive ? 'bg-[#39FF14] text-black' : 'bg-white/8 text-white/40'}`}>
-              <RotateCcw className="w-2 h-2" />
-            </button>
-            {[1, 2, 4, 8].map(n => <button key={n} className="flex-1 py-px text-[7px] font-mono rounded bg-white/6 text-white/35 hover:bg-white/12">{n}</button>)}
-          </div>
-          <div className="flex items-center gap-1 px-1">
-            <span className="text-[6px] text-white/30">PITCH</span>
-            <button onClick={() => setKeyLock(!keyLock)} className={keyLock ? 'text-[#39FF14]' : 'text-white/20'}>
-              {keyLock ? <Lock className="w-2 h-2" /> : <Unlock className="w-2 h-2" />}
-            </button>
-            <div className="flex-1 h-1 bg-black/50 rounded-full relative">
-              <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full left-1/2 -translate-x-1/2" style={{ background: c }} />
-            </div>
-          </div>
-        </div>
-        <div className="flex items-end gap-1.5 px-2 py-1 rounded bg-black/25 shrink-0">
-          <div className="flex gap-px">
-            {['L', 'R'].map(ch => (
-              <div key={ch} className="flex flex-col items-center">
-                <div className="flex flex-col-reverse gap-px">
-                  {[...Array(8)].map((_, i) => <div key={i} className="w-1.5 h-1 rounded-sm" style={{ background: level > i / 8 ? (i < 5 ? '#39FF14' : i < 7 ? '#FFD700' : '#FF003C') : '#151515' }} />)}
-                </div>
-                <span className="text-[5px] text-white/20">{ch}</span>
-              </div>
-            ))}
-          </div>
-          <Knob label="GAIN" value={50} color="#FF6600" size={26} />
-          <div className="flex flex-col items-center gap-px">
-            <span className="text-[5px] text-white/20">VOL</span>
-            <div className="w-2.5 h-9 bg-black/50 rounded relative border border-white/8">
-              <div className="absolute bottom-0 left-0 right-0 rounded-b" style={{ height: `${deck.volume * 100}%`, background: `${c}30` }} />
-              <div className="absolute left-1/2 -translate-x-1/2 w-4 h-1.5 bg-gray-400 rounded" style={{ bottom: `${deck.volume * 80}%` }} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Row 4: Pads | FX */}
+      {/* Loop + Pitch */}
       <div className="flex gap-2">
-        <div className="flex-1 grid grid-cols-4 gap-0.5">
-          {[1,2,3,4,5,6,7,8].map(n => (
-            <button key={n} data-testid={`pad-${n}-${deckId.toLowerCase()}`}
-              onClick={() => setActivePads(p => p.includes(n) ? p.filter(x => x !== n) : [...p, n])}
-              className="py-1.5 rounded text-[8px] font-bold transition-all"
-              style={{ background: activePads.includes(n) ? '#3a3a3a' : '#161616', border: '1px solid #252525', color: activePads.includes(n) ? '#fff' : '#444' }}>
-              {n}
-            </button>
-          ))}
+        <div className="flex items-center gap-1 flex-1 p-1.5 rounded bg-black/25">
+          <span className="text-[7px] text-white/35 mr-0.5">LOOP</span>
+          <button onClick={() => setLoopActive(!loopActive)} className={`p-1 rounded ${loopActive ? 'bg-[#39FF14] text-black' : 'bg-white/8 text-white/40'}`}>
+            <RotateCcw className="w-3 h-3" />
+          </button>
+          {[1, 2, 4, 8, 16, 32].map(n => <button key={n} className="flex-1 py-1 text-[8px] font-mono rounded bg-white/6 text-white/35 hover:bg-white/12">{n}</button>)}
         </div>
-        <div className="shrink-0 py-1 px-1.5 rounded bg-black/25">
-          <span className="text-[6px] text-white/30 block mb-0.5 text-center">FX RACK</span>
-          <div className="flex gap-0.5">
-            <Knob label="ECH" value={0} color="#FFD700" size={22} />
-            <Knob label="VRB" value={0} color="#FF6600" size={22} />
-            <Knob label="FLT" value={50} color="#9900FF" size={22} />
-            <Knob label="WET" value={50} color="#39FF14" size={22} />
+        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded bg-black/25 w-[100px] shrink-0">
+          <span className="text-[7px] text-white/35">PITCH</span>
+          <button onClick={() => setKeyLock(!keyLock)} className={keyLock ? 'text-[#39FF14]' : 'text-white/25'}>
+            {keyLock ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+          </button>
+          <div className="flex-1 h-1.5 bg-black/50 rounded-full relative">
+            <div className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full left-1/2 -translate-x-1/2" style={{ background: c }} />
           </div>
+        </div>
+      </div>
+
+      {/* Pad Mode Selector */}
+      <div className="flex gap-1">
+        {padModes.map(mode => (
+          <button key={mode} onClick={() => setPadMode(mode)}
+            className={`flex-1 py-1 rounded text-[7px] font-mono font-bold transition-all ${padMode === mode ? 'text-black' : 'bg-white/5 text-white/35 hover:bg-white/10'}`}
+            style={padMode === mode ? { background: c, boxShadow: `0 0 8px ${c}50` } : {}}>
+            {mode}
+          </button>
+        ))}
+      </div>
+
+      {/* Pads */}
+      <div className="grid grid-cols-4 gap-1">
+        {[1,2,3,4,5,6,7,8].map(n => (
+          <button key={n} data-testid={`pad-${n}-${deckId.toLowerCase()}`}
+            onClick={() => setActivePads(p => p.includes(n) ? p.filter(x => x !== n) : [...p, n])}
+            className="rounded text-xs font-bold transition-all flex items-center justify-center py-3"
+            style={{ background: activePads.includes(n) ? '#3a3a3a' : '#151515', border: `1px solid ${activePads.includes(n) ? '#555' : '#252525'}`, color: activePads.includes(n) ? '#fff' : '#444' }}>
+            {n}
+          </button>
+        ))}
+      </div>
+
+      {/* FX Rack */}
+      <div className="py-1.5 px-2 rounded bg-black/25 shrink-0">
+        <span className="text-[7px] text-white/30 block mb-0.5">FX RACK</span>
+        <div className="flex justify-around">
+          <Knob label="ECHO" value={0} color="#FFD700" size={28} />
+          <Knob label="REVERB" value={0} color="#FF6600" size={28} />
+          <Knob label="FILTER" value={50} color="#9900FF" size={28} />
+          <Knob label="DRY/WET" value={50} color="#39FF14" size={28} />
         </div>
       </div>
     </div>
@@ -317,52 +400,44 @@ function App() {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-[#080808] text-white">
       {/* HEADER */}
-      <header className="flex items-center justify-between px-4 py-1 bg-black/80 border-b border-white/8 shrink-0" data-testid="app-header">
-        <div className="flex items-center gap-1.5">
-          <Disc3 className="w-4 h-4 text-[#00F0FF]" />
-          <Disc3 className="w-4 h-4 text-[#FF003C] -ml-2" />
-          <span className="font-['Orbitron'] text-xs tracking-wider">CYBERDECK</span>
+      <header className="flex items-center justify-between px-4 py-1.5 bg-black/80 border-b border-white/8 shrink-0" data-testid="app-header">
+        <div className="flex items-center gap-2">
+          <Disc3 className="w-5 h-5 text-[#00F0FF]" />
+          <Disc3 className="w-5 h-5 text-[#FF003C] -ml-3" />
+          <span className="font-['Orbitron'] text-sm tracking-wider">CYBERDECK</span>
         </div>
         {(deckA.currentStation || deckB.currentStation) && (
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#FF003C]/15 border border-[#FF003C]/25">
-            <Radio className="w-2.5 h-2.5 text-[#39FF14] animate-pulse" />
-            <span className="text-[8px] text-white/80">{deckA.currentStation?.name || deckB.currentStation?.name}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#FF003C]/15 border border-[#FF003C]/25">
+            <Radio className="w-3 h-3 text-[#39FF14] animate-pulse" />
+            <span className="text-[9px] text-white/80">{deckA.currentStation?.name || deckB.currentStation?.name}</span>
           </div>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button data-testid="record-btn" onClick={() => recorder.isRecording ? recorder.stopRecording() : recorder.startRecording()}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[8px] font-bold border ${recorder.isRecording ? 'bg-[#FF003C]/25 border-[#FF003C]/40 text-[#FF003C]' : 'bg-white/5 border-white/8 text-white/40 hover:text-white/70'}`}>
-            <Mic className="w-2.5 h-2.5" />
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[9px] font-bold border ${recorder.isRecording ? 'bg-[#FF003C]/25 border-[#FF003C]/40 text-[#FF003C]' : 'bg-white/5 border-white/8 text-white/40 hover:text-white/70'}`}>
+            <Mic className="w-3 h-3" />
             {recorder.isRecording ? <span className="animate-pulse">{recorder.formatDuration(recorder.recordingDuration)}</span> : 'REC'}
           </button>
           <StationBrowser onSelectStation={handleStation} currentStation={(activeDeck === 'A' ? deckA : deckB).currentStation} isOpen={isStationBrowserOpen} onOpenChange={setIsStationBrowserOpen} />
         </div>
       </header>
 
-      {/* MAIN */}
-      <div className="flex-1 flex flex-col min-h-0 px-4 py-2 gap-2 max-w-[1400px] mx-auto w-full">
-        {/* TOP: Turntables + Visualizer */}
-        <div className="shrink-0 flex items-center justify-center gap-5 pt-3">
+      {/* MAIN CONTENT */}
+      <div className="flex-1 flex flex-col min-h-0 p-3 gap-2">
+        {/* TOP ROW: Turntables + Visualizer + Crossfader */}
+        <div className="shrink-0 flex items-center justify-center gap-6">
           <VinylTurntable isPlaying={deckA.isPlaying} analyserData={deckA.analyserData} deckId="A" currentStation={deckA.currentStation} rotation={rotationA} />
-          <div className="flex-1 max-w-[520px] space-y-1.5">
+          <div className="flex-1 max-w-[520px] space-y-1">
             <SpectrumVisualizer deckAData={deckA.analyserData} deckBData={deckB.analyserData} isPlayingA={deckA.isPlaying} isPlayingB={deckB.isPlaying} />
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Crossfader value={crossfade} onChange={setCrossfade} />
-              </div>
-              <div className="flex items-center gap-2 px-2 py-1 rounded bg-black/30 border border-white/5 shrink-0">
-                <Knob label="MASTER" value={75} color="#FF003C" size={28} />
-                <Knob label="BOOTH" value={50} color="#FFD700" size={28} />
-                <Knob label="CUE" value={60} color="#00F0FF" size={28} />
-              </div>
-            </div>
+            <Crossfader value={crossfade} onChange={setCrossfade} />
           </div>
           <VinylTurntable isPlaying={deckB.isPlaying} analyserData={deckB.analyserData} deckId="B" currentStation={deckB.currentStation} rotation={rotationB} />
         </div>
 
-        {/* BOTTOM: Deck Panels */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* BOTTOM ROW: Deck A | Center Mixer | Deck B */}
+        <div className="flex-1 flex gap-2 min-h-0">
           <DeckPanel deck={deckA} deckId="A" />
+          <CenterMixer deckA={deckA} deckB={deckB} />
           <DeckPanel deck={deckB} deckId="B" />
         </div>
       </div>
@@ -371,7 +446,7 @@ function App() {
       {!deckA.currentStation && !deckB.currentStation && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
           <button data-testid="load-station-btn" onClick={() => setIsStationBrowserOpen(true)}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#00F0FF]/20 to-[#FF003C]/20 border border-white/20 hover:border-white/40 text-sm font-['Orbitron'] tracking-wide">
+            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#00F0FF]/20 to-[#FF003C]/20 border border-white/20 hover:border-white/40 text-sm font-['Orbitron'] tracking-wide">
             LOAD A STATION TO BEGIN
           </button>
         </div>

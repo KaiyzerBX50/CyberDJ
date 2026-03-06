@@ -7,8 +7,9 @@ import requests
 import os
 from datetime import datetime
 
-# Backend URL from environment
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
+# Backend URL from environment - check both frontend and backend env vars
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL') or os.environ.get('BACKEND_URL') or 'https://turntable-pro-7.preview.emergentagent.com'
+BASE_URL = BASE_URL.rstrip('/')
 
 class TestHealthEndpoints:
     """Test health and root endpoints"""
