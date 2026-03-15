@@ -11,15 +11,19 @@ import { toast } from "sonner";
 /* ======= VINYL TURNTABLE ======= */
 const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotation }) => {
   const c = deckId === 'A' ? '#00F0FF' : '#FF003C';
-  const arm = isPlaying ? -8 : -35;
+  // Tonearm: 0deg = resting (needle off record), 28deg = playing (needle on groove)
+  const armAngle = isPlaying ? 28 : 2;
   return (
     <div className="relative" data-testid={`turntable-${deckId.toLowerCase()}`}>
       <div className="relative" style={{ width: 190, height: 190 }}>
+        {/* Platter base */}
         <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(145deg, #1a1a1a, #0a0a0a)', boxShadow: `inset 0 0 30px rgba(0,0,0,0.8), 0 0 ${isPlaying ? 22 : 8}px ${c}30`, border: `2px solid ${c}25` }} />
         <div className="absolute inset-2 rounded-full" style={{ background: `conic-gradient(${c}15, ${c}40, ${c}15, ${c}40, ${c}15)`, opacity: isPlaying ? 0.5 : 0.15, filter: 'blur(2px)' }} />
+        {/* Spinning vinyl */}
         <motion.div className="absolute inset-3 rounded-full" style={{ rotate: rotation }}>
           <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(from ${rotation}deg, #111, #1a1a1a, #111, #181818, #111, #1a1a1a, #111, #181818)` }} />
           {[...Array(10)].map((_, i) => <div key={i} className="absolute rounded-full border border-white/5" style={{ inset: `${6 + i * 6}%` }} />)}
+          {/* Center label */}
           <div className="absolute rounded-full flex items-center justify-center" style={{ inset: '30%', background: deckId === 'A' ? 'linear-gradient(135deg, #00F0FF, #0066FF)' : 'linear-gradient(135deg, #FF003C, #FF6600)', boxShadow: `0 0 15px ${c}50` }}>
             <div className="text-center">
               <div className="text-[7px] font-bold text-white uppercase tracking-wider">{currentStation?.name?.slice(0, 8) || 'DECK ' + deckId}</div>
@@ -29,15 +33,39 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
           </div>
           <div className="absolute top-1.5 left-1/2 w-1 h-3 -translate-x-1/2 rounded-full" style={{ background: c, boxShadow: `0 0 6px ${c}` }} />
         </motion.div>
-        {/* Tonearm — fully inside the turntable */}
-        <motion.div className="absolute right-4 top-[8%] origin-[calc(100%-4px)_4px]" animate={{ rotate: arm }} transition={{ type: 'spring', stiffness: 80, damping: 15 }}>
-          <div className="absolute -top-1.5 right-0 w-6 h-6 rounded-full" style={{ background: 'linear-gradient(145deg, #333, #1a1a1a)', boxShadow: '0 2px 5px rgba(0,0,0,0.5)' }} />
-          <div className="w-[75px] h-1 rounded-full" style={{ background: 'linear-gradient(to bottom, #555, #333)' }} />
-          <div className="absolute left-0 top-0 w-4 h-2 -translate-x-3" style={{ background: 'linear-gradient(to bottom, #444, #222)', clipPath: 'polygon(100% 0, 100% 100%, 0 70%, 0 30%)' }}>
-            <div className={`absolute bottom-0.5 left-0.5 w-1 h-1 rounded-full ${isPlaying ? 'bg-[#39FF14]' : 'bg-[#333]'}`} style={{ boxShadow: isPlaying ? '0 0 4px #39FF14' : 'none' }} />
+
+        {/* Tonearm — pivots from upper-right, needle reaches groove area */}
+        <motion.div
+          className="absolute"
+          style={{ top: 8, right: 8, transformOrigin: 'calc(100% - 6px) 6px' }}
+          animate={{ rotate: armAngle }}
+          transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+        >
+          {/* Pivot base */}
+          <div className="absolute w-5 h-5 rounded-full" style={{
+            top: -4, right: -4,
+            background: 'linear-gradient(145deg, #444, #222)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.6)',
+          }} />
+          {/* Arm shaft */}
+          <div style={{ width: 78, height: 2, borderRadius: 1, background: 'linear-gradient(to bottom, #666, #333)' }} />
+          {/* Headshell + cartridge at needle end */}
+          <div className="absolute" style={{ left: -6, top: -3, width: 10, height: 8 }}>
+            <div style={{
+              width: 10, height: 6,
+              background: 'linear-gradient(to bottom, #555, #333)',
+              clipPath: 'polygon(100% 0, 100% 100%, 20% 80%, 0% 50%, 20% 20%)',
+            }} />
+            {/* Stylus tip — glows green when on the record */}
+            <div className="absolute rounded-full" style={{
+              left: 0, bottom: 0, width: 3, height: 3,
+              background: isPlaying ? '#39FF14' : '#333',
+              boxShadow: isPlaying ? '0 0 6px #39FF14' : 'none',
+            }} />
           </div>
         </motion.div>
-        {/* LED dots inside the turntable at the bottom */}
+
+        {/* LED dots */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
           {[...Array(5)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: isPlaying && analyserData[i * 20] > 100 ? c : '#222', boxShadow: isPlaying && analyserData[i * 20] > 100 ? `0 0 4px ${c}` : 'none' }} />)}
         </div>
