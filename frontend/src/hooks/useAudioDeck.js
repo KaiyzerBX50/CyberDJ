@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = window.CYBERDJ_API_BASE || 'https://cyberdj-backend-dagawdnyc.zocomputer.io';
 
 export const useAudioDeck = (deckId = 'A') => {
   const [isPlaying, setIsPlaying] = useState(false);

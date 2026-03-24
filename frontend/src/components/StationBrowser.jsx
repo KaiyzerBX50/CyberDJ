@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../c
 import { Button } from '../components/ui/button';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = window.CYBERDJ_API_BASE || 'https://cyberdj-backend-dagawdnyc.zocomputer.io';
 const API = `${BACKEND_URL}/api`;
 
 export const StationBrowser = ({ onSelectStation, currentStation, isOpen, onOpenChange }) => {
