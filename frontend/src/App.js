@@ -69,8 +69,6 @@ const playSampleSound = (audioCtx, type) => {
 /* ======= VINYL TURNTABLE ======= */
 const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotation }) => {
   const c = deckId === 'A' ? '#00F0FF' : '#FF003C';
-  // Tonearm: 0deg = resting (needle off record), 28deg = playing (needle on groove)
-  const armAngle = isPlaying ? 28 : 2;
   return (
     <div className="relative" data-testid={`turntable-${deckId.toLowerCase()}`}>
       <div className="relative" style={{ width: 190, height: 190 }}>
@@ -90,37 +88,6 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
             <div className="absolute w-2.5 h-2.5 rounded-full bg-black" />
           </div>
           <div className="absolute top-1.5 left-1/2 w-1 h-3 -translate-x-1/2 rounded-full" style={{ background: c, boxShadow: `0 0 6px ${c}` }} />
-        </motion.div>
-
-        {/* Tonearm — pivots from upper-right, needle reaches groove area */}
-        <motion.div
-          className="absolute"
-          style={{ top: 8, right: 8, transformOrigin: 'calc(100% - 6px) 6px' }}
-          animate={{ rotate: armAngle }}
-          transition={{ type: 'spring', stiffness: 80, damping: 15 }}
-        >
-          {/* Pivot base */}
-          <div className="absolute w-5 h-5 rounded-full" style={{
-            top: -4, right: -4,
-            background: 'linear-gradient(145deg, #444, #222)',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.6)',
-          }} />
-          {/* Arm shaft */}
-          <div style={{ width: 78, height: 2, borderRadius: 1, background: 'linear-gradient(to bottom, #666, #333)' }} />
-          {/* Headshell + cartridge at needle end */}
-          <div className="absolute" style={{ left: -6, top: -3, width: 10, height: 8 }}>
-            <div style={{
-              width: 10, height: 6,
-              background: 'linear-gradient(to bottom, #555, #333)',
-              clipPath: 'polygon(100% 0, 100% 100%, 20% 80%, 0% 50%, 20% 20%)',
-            }} />
-            {/* Stylus tip — glows green when on the record */}
-            <div className="absolute rounded-full" style={{
-              left: 0, bottom: 0, width: 3, height: 3,
-              background: isPlaying ? '#39FF14' : '#333',
-              boxShadow: isPlaying ? '0 0 6px #39FF14' : 'none',
-            }} />
-          </div>
         </motion.div>
 
         {/* LED dots */}
@@ -190,14 +157,18 @@ const SpectrumVisualizer = ({ deckAData, deckBData, isPlayingA, isPlayingB }) =>
 
 /* ======= PIONEER KNOB ======= */
 const Knob = ({ label, value = 50, color = '#888', size = 36, onChange }) => {
+  const valRef = useRef(value);
+  valRef.current = value;
   const rot = ((Math.min(100, Math.max(0, value)) / 100) * 270) - 135;
   const handleDragStart = (startY) => {
     if (!onChange) return;
-    const startVal = value;
+    let lastY = startY;
     const onMove = (e) => {
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const delta = (startY - clientY) * 0.5;
-      onChange(Math.min(100, Math.max(0, startVal + delta)));
+      const delta = (lastY - clientY) * 0.8;
+      lastY = clientY;
+      const newVal = Math.min(100, Math.max(0, valRef.current + delta));
+      onChange(newVal);
     };
     const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
     document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); document.addEventListener('touchmove', onMove); document.addEventListener('touchend', onUp);
@@ -691,6 +662,24 @@ function App() {
             <Mic className="w-3 h-3" />
             {recorder.isRecording ? <span className="animate-pulse">{recorder.formatDuration(recorder.recordingDuration)}</span> : 'REC'}
           </button>
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/40 border border-white/10">
+            <button onClick={() => setActiveDeck('A')}
+              className="px-2 py-0.5 rounded text-[9px] font-['Orbitron'] font-bold transition-all"
+              style={{
+                background: activeDeck === 'A' ? '#00F0FF25' : 'transparent',
+                color: activeDeck === 'A' ? '#00F0FF' : '#ffffff40',
+                border: activeDeck === 'A' ? '1px solid #00F0FF50' : '1px solid transparent',
+                boxShadow: activeDeck === 'A' ? '0 0 8px #00F0FF30' : 'none',
+              }}>DECK A</button>
+            <button onClick={() => setActiveDeck('B')}
+              className="px-2 py-0.5 rounded text-[9px] font-['Orbitron'] font-bold transition-all"
+              style={{
+                background: activeDeck === 'B' ? '#FF003C25' : 'transparent',
+                color: activeDeck === 'B' ? '#FF003C' : '#ffffff40',
+                border: activeDeck === 'B' ? '1px solid #FF003C50' : '1px solid transparent',
+                boxShadow: activeDeck === 'B' ? '0 0 8px #FF003C30' : 'none',
+              }}>DECK B</button>
+          </div>
           <StationBrowser onSelectStation={handleStation} currentStation={(activeDeck === 'A' ? deckA : deckB).currentStation} isOpen={isStationBrowserOpen} onOpenChange={setIsStationBrowserOpen} />
         </div>
       </header>
