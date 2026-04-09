@@ -230,6 +230,14 @@ const CenterMixer = ({ deckA, deckB }) => {
   const levelA = deckA.isPlaying ? deckA.analyserData.reduce((a, b) => a + b, 0) / deckA.analyserData.length / 255 : 0;
   const levelB = deckB.isPlaying ? deckB.analyserData.reduce((a, b) => a + b, 0) / deckB.analyserData.length / 255 : 0;
   const masterLevel = Math.max(levelA, levelB);
+  const anyPlaying = deckA.isPlaying || deckB.isPlaying;
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (!anyPlaying) return;
+    const id = setInterval(() => setTick(t => t + 1), 80);
+    return () => clearInterval(id);
+  }, [anyPlaying]);
+  const wobble = (base, speed, phase, amp = 15) => anyPlaying ? Math.round(base + Math.sin(tick * speed + phase) * amp) : base;
 
   return (
     <div className="flex flex-col gap-1.5 px-2 py-2 rounded-lg bg-[#0c0c0c] border border-white/8 w-[180px] shrink-0" data-testid="center-mixer">
@@ -254,8 +262,8 @@ const CenterMixer = ({ deckA, deckB }) => {
       </div>
 
       <div className="flex justify-around">
-        <Knob label="MASTER" value={75} color="#FF003C" size={32} />
-        <Knob label="BOOTH" value={50} color="#FFD700" size={32} />
+        <Knob label="MASTER" value={wobble(75, 0.08, 0, 8)} color="#FF003C" size={32} />
+        <Knob label="BOOTH" value={wobble(50, 0.06, 1.5, 10)} color="#FFD700" size={32} />
       </div>
 
       <div className="h-px bg-white/8" />
@@ -264,10 +272,10 @@ const CenterMixer = ({ deckA, deckB }) => {
       <div className="flex gap-2">
         <div className="flex-1 flex flex-col items-center gap-1">
           <span className="text-[7px] font-['Orbitron'] text-[#00F0FF]">CH 1</span>
-          <Knob label="TRIM" value={50} color="#00F0FF" size={22} />
-          <Knob label="HI" value={50} color="#39FF14" size={22} />
-          <Knob label="MID" value={50} color="#FFD700" size={22} />
-          <Knob label="LOW" value={50} color="#FF003C" size={22} />
+          <Knob label="TRIM" value={wobble(50, 0.12, 0)} color="#00F0FF" size={22} />
+          <Knob label="HI" value={wobble(50, 0.09, 1.0)} color="#39FF14" size={22} />
+          <Knob label="MID" value={wobble(50, 0.11, 2.0)} color="#FFD700" size={22} />
+          <Knob label="LOW" value={wobble(50, 0.07, 3.0)} color="#FF003C" size={22} />
           <div className="flex gap-px">
             {['L', 'R'].map(ch => (
               <div key={ch} className="flex flex-col-reverse gap-px">
@@ -285,10 +293,10 @@ const CenterMixer = ({ deckA, deckB }) => {
 
         <div className="flex-1 flex flex-col items-center gap-1">
           <span className="text-[7px] font-['Orbitron'] text-[#FF003C]">CH 2</span>
-          <Knob label="TRIM" value={50} color="#FF003C" size={22} />
-          <Knob label="HI" value={50} color="#39FF14" size={22} />
-          <Knob label="MID" value={50} color="#FFD700" size={22} />
-          <Knob label="LOW" value={50} color="#FF003C" size={22} />
+          <Knob label="TRIM" value={wobble(50, 0.10, 4.0)} color="#FF003C" size={22} />
+          <Knob label="HI" value={wobble(50, 0.13, 5.0)} color="#39FF14" size={22} />
+          <Knob label="MID" value={wobble(50, 0.08, 6.0)} color="#FFD700" size={22} />
+          <Knob label="LOW" value={wobble(50, 0.11, 7.0)} color="#FF003C" size={22} />
           <div className="flex gap-px">
             {['L', 'R'].map(ch => (
               <div key={ch} className="flex flex-col-reverse gap-px">
@@ -307,8 +315,8 @@ const CenterMixer = ({ deckA, deckB }) => {
 
       <div className="h-px bg-white/8" />
       <div className="flex justify-around">
-        <Knob label="CUE" value={50} color="#00F0FF" size={22} />
-        <Knob label="LVL" value={60} color="#FFD700" size={22} />
+        <Knob label="CUE" value={wobble(50, 0.14, 8.0)} color="#00F0FF" size={22} />
+        <Knob label="LVL" value={wobble(60, 0.09, 9.0)} color="#FFD700" size={22} />
       </div>
     </div>
   );
@@ -318,11 +326,15 @@ const CenterMixer = ({ deckA, deckB }) => {
 const DeckPanel = ({ deck, deckId, activeVibe, onVibeChange, onPlaySample }) => {
   const c = deckId === 'A' ? '#00F0FF' : '#FF003C';
   const [loopActive, setLoopActive] = useState(false);
+  const [synced, setSynced] = useState(false);
   const [keyLock, setKeyLock] = useState(false);
-  const [fxEcho, setFxEcho] = useState(0);
-  const [fxReverb, setFxReverb] = useState(0);
-  const [fxFilter, setFxFilter] = useState(50);
-  const [fxDryWet, setFxDryWet] = useState(50);
+  const [fxTick, setFxTick] = useState(0);
+  useEffect(() => {
+    if (!deck.isPlaying) return;
+    const id = setInterval(() => setFxTick(t => t + 1), 80);
+    return () => clearInterval(id);
+  }, [deck.isPlaying]);
+  const fxWobble = (base, speed, phase, amp = 20) => deck.isPlaying ? Math.round(base + Math.sin(fxTick * speed + phase) * amp) : base;
   const [flashingSampler, setFlashingSampler] = useState(null);
   const bpm = deck.isPlaying ? Math.floor(85 + deck.analyserData.slice(0, 8).reduce((a, b) => a + b, 0) / 32) : null;
   const elapsed = deck.isPlaying ? Math.floor(performance.now() / 1000) % 600 : 0;
@@ -371,14 +383,16 @@ const DeckPanel = ({ deck, deckId, activeVibe, onVibeChange, onPlaySample }) => 
 
       {/* Transport */}
       <div className="flex items-center justify-between gap-2 shrink-0">
-        <button className="px-3 py-1.5 rounded text-[9px] font-bold bg-[#FF6600]/25 text-[#FF6600] border border-[#FF6600]/40 hover:bg-[#FF6600]/35">CUE</button>
+        <button onClick={() => { if (deck.cueToStart) deck.cueToStart(); else if (deck.audioRef?.current) deck.audioRef.current.currentTime = 0; }}
+          className="px-3 py-1.5 rounded text-[9px] font-bold bg-[#FF6600]/25 text-[#FF6600] border border-[#FF6600]/40 hover:bg-[#FF6600]/50 active:bg-[#FF6600]/70 active:scale-95 transition-all">CUE</button>
         <button data-testid={`play-pause-${deckId.toLowerCase()}`} onClick={deck.togglePlayPause} disabled={!deck.currentStation}
           className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0"
           style={{ background: deck.isPlaying ? '#FF003C' : '#39FF14', boxShadow: `0 0 16px ${deck.isPlaying ? '#FF003C50' : '#39FF1450'}` }}>
           {deck.isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
         </button>
-        <button className="px-2.5 py-1.5 rounded text-[9px] font-bold flex items-center gap-1 bg-white/8 text-white/45 border border-white/10 hover:bg-white/12">
-          <Zap className="w-2.5 h-2.5" />SYNC
+        <button onClick={() => { if (deck.syncBpm) deck.syncBpm(); setSynced(true); setTimeout(() => setSynced(false), 800); }}
+          className={`px-2.5 py-1.5 rounded text-[9px] font-bold flex items-center gap-1 border transition-all active:scale-95 ${synced ? 'bg-[#39FF14]/30 text-[#39FF14] border-[#39FF14]/50' : 'bg-white/8 text-white/45 border-white/10 hover:bg-white/12'}`}>
+          <Zap className={`w-2.5 h-2.5 ${synced ? 'animate-pulse' : ''}`} />SYNC
         </button>
       </div>
 
@@ -428,10 +442,10 @@ const DeckPanel = ({ deck, deckId, activeVibe, onVibeChange, onPlaySample }) => 
       <div className="py-1.5 px-2 rounded bg-black/25 shrink-0">
         <span className="text-[9px] font-['Orbitron'] tracking-[0.1em] text-white/50 block mb-1">FX RACK</span>
         <div className="flex justify-around">
-          <Knob label="ECHO" value={fxEcho} color="#FFD700" size={28} onChange={setFxEcho} />
-          <Knob label="REVERB" value={fxReverb} color="#FF6600" size={28} onChange={setFxReverb} />
-          <Knob label="FILTER" value={fxFilter} color="#9900FF" size={28} onChange={setFxFilter} />
-          <Knob label="DRY/WET" value={fxDryWet} color="#39FF14" size={28} onChange={setFxDryWet} />
+          <Knob label="ECHO" value={fxWobble(30, 0.15, 0, 25)} color="#FFD700" size={28} />
+          <Knob label="REVERB" value={fxWobble(25, 0.10, 1.5, 20)} color="#FF6600" size={28} />
+          <Knob label="FILTER" value={fxWobble(50, 0.12, 3.0, 30)} color="#9900FF" size={28} />
+          <Knob label="DRY/WET" value={fxWobble(50, 0.08, 4.5, 15)} color="#39FF14" size={28} />
         </div>
       </div>
 
