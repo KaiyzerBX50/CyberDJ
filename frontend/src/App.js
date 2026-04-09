@@ -728,12 +728,31 @@ const VibeBackground = ({ activeVibe }) => {
   const ac = vibe.padColor;
   const animations = {
     1: {
-      css: `@keyframes dust-float{0%{transform:translateY(100vh) scale(0.3);opacity:0}30%{opacity:0.6}100%{transform:translateY(-20vh) scale(1);opacity:0}}.vibe-p{position:absolute;border-radius:50%;animation:dust-float linear infinite;pointer-events:none}`,
-      render: () => (<div className="absolute inset-0">{[...Array(40)].map((_,i)=>(<div key={i} className="vibe-p" style={{width:3+Math.random()*6,height:3+Math.random()*6,left:`${Math.random()*100}%`,background:`radial-gradient(${ac},${ac}00)`,boxShadow:`0 0 ${8+Math.random()*14}px ${ac}90`,animationDuration:`${5+Math.random()*7}s`,animationDelay:`${Math.random()*6}s`}}/>))}</div>),
+      css: `@keyframes bass-pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.15}50%{transform:translate(-50%,-50%) scale(1.6);opacity:0.5}}@keyframes head-nod{0%,100%{transform:scaleY(0.3)}25%{transform:scaleY(1)}50%{transform:scaleY(0.5)}75%{transform:scaleY(0.9)}}@keyframes crackle{0%,100%{opacity:0.05}50%{opacity:0.15}}@keyframes boom-flash{0%,90%,100%{opacity:0}92%{opacity:0.3}}.vibe-808{position:absolute;left:50%;top:55%;border-radius:50%;animation:bass-pulse ease-in-out infinite;pointer-events:none}.vibe-bar{position:absolute;bottom:0;animation:head-nod ease-in-out infinite;transform-origin:bottom;pointer-events:none;border-radius:2px 2px 0 0}.vibe-crackle{position:absolute;border-radius:50%;animation:crackle linear infinite;pointer-events:none}.vibe-flash{position:absolute;inset:0;animation:boom-flash ease-in-out infinite;pointer-events:none}`,
+      render: () => (<div className="absolute inset-0 overflow-hidden">
+        {/* 808 bass rings */}
+        {[...Array(4)].map((_,i)=>(<div key={'r'+i} className="vibe-808" style={{width:300+i*200,height:300+i*200,border:`${3-i*0.5}px solid ${ac}${['60','40','25','15'][i]}`,boxShadow:`0 0 ${40-i*8}px ${ac}${['50','35','20','10'][i]}, inset 0 0 ${30-i*6}px ${ac}${['30','20','10','05'][i]}`,animationDuration:`${0.8+i*0.15}s`,animationDelay:`${i*0.1}s`}}/>))}
+        {/* Head-nod bounce bars */}
+        {[...Array(24)].map((_,i)=>(<div key={'b'+i} className="vibe-bar" style={{left:`${8+i*3.6}%`,width:'2.5%',height:`${15+Math.random()*35}%`,background:`linear-gradient(to top, ${ac}60, ${ac}20)`,boxShadow:`0 0 6px ${ac}30`,animationDuration:`${0.5+Math.random()*0.3}s`,animationDelay:`${(i%4)*0.125}s`}}/>))}
+        {/* Vinyl crackle dust */}
+        {[...Array(30)].map((_,i)=>(<div key={'c'+i} className="vibe-crackle" style={{width:1+Math.random()*2,height:1+Math.random()*2,left:`${Math.random()*100}%`,top:`${Math.random()*100}%`,background:ac,animationDuration:`${0.3+Math.random()*0.5}s`,animationDelay:`${Math.random()*2}s`}}/>))}
+        {/* Boom flash */}
+        <div className="vibe-flash" style={{background:`radial-gradient(ellipse at 50% 60%, ${ac}20, transparent 60%)`,animationDuration:'1.6s'}}/>
+      </div>),
     },
     2: {
-      css: `@keyframes pulse-ring{0%{transform:translate(-50%,-50%) scale(0.1);opacity:0.7;border-width:3px}100%{transform:translate(-50%,-50%) scale(3);opacity:0;border-width:1px}}.vibe-ring{position:absolute;left:50%;top:50%;border-radius:50%;border-style:solid;animation:pulse-ring ease-out infinite;pointer-events:none}`,
-      render: () => (<div className="absolute inset-0">{[...Array(6)].map((_,i)=>(<div key={i} className="vibe-ring" style={{width:250,height:250,borderColor:ac+'80',animationDuration:'3.5s',animationDelay:`${i*0.6}s`}}/>))}</div>),
+      css: `@keyframes neon-flicker{0%,18%,22%,25%,53%,57%,100%{opacity:0.8;text-shadow:none}20%,24%,55%{opacity:0.2}}@keyframes graffiti-drip{0%{height:0;opacity:0}20%{opacity:0.7}100%{height:100%;opacity:0.3}}@keyframes boombox-pulse{0%,100%{transform:scale(1);opacity:0.2}50%{transform:scale(1.15);opacity:0.5}}@keyframes spotlight-sweep{0%{transform:translateX(-100%) rotate(-15deg)}100%{transform:translateX(200%) rotate(-15deg)}}.vibe-neon{position:absolute;animation:neon-flicker ease-in-out infinite;pointer-events:none}.vibe-drip{position:absolute;top:0;width:3px;animation:graffiti-drip ease-in infinite;pointer-events:none;border-radius:0 0 3px 3px}.vibe-boom{position:absolute;border-radius:50%;animation:boombox-pulse ease-in-out infinite;pointer-events:none}.vibe-spot{position:absolute;animation:spotlight-sweep linear infinite;pointer-events:none}`,
+      render: () => {const neons=['#FF00FF','#00FFFF','#FFFF00','#FF003C','#39FF14'];return(<div className="absolute inset-0 overflow-hidden">
+        {/* Neon graffiti streaks */}
+        {[...Array(8)].map((_,i)=>(<div key={'n'+i} className="vibe-neon" style={{left:`${5+i*12}%`,top:`${10+Math.random()*30}%`,width:Math.random()*120+40,height:3,background:neons[i%5],boxShadow:`0 0 12px ${neons[i%5]}, 0 0 30px ${neons[i%5]}60`,borderRadius:2,transform:`rotate(${-20+Math.random()*40}deg)`,animationDuration:`${2+Math.random()*3}s`,animationDelay:`${Math.random()*2}s`}}/>))}
+        {/* Graffiti drip lines */}
+        {[...Array(16)].map((_,i)=>(<div key={'d'+i} className="vibe-drip" style={{left:`${3+i*6}%`,background:`linear-gradient(to bottom, ${neons[i%5]}80, ${neons[i%5]}00)`,animationDuration:`${3+Math.random()*4}s`,animationDelay:`${Math.random()*5}s`}}/>))}
+        {/* Boombox bass circles */}
+        {[...Array(3)].map((_,i)=>(<div key={'bm'+i} className="vibe-boom" style={{width:120+i*80,height:120+i*80,left:`${20+i*20}%`,top:`${30+i*15}%`,border:`2px solid ${ac}40`,boxShadow:`0 0 ${20+i*10}px ${ac}30, inset 0 0 ${15+i*8}px ${ac}15`,animationDuration:`${1.2+i*0.3}s`,animationDelay:`${i*0.2}s`}}/>))}
+        {/* Breakdance spotlight sweep */}
+        <div className="vibe-spot" style={{top:'20%',width:'30%',height:'120%',background:`linear-gradient(90deg, transparent, ${ac}15, ${ac}30, ${ac}15, transparent)`,animationDuration:'4s'}}/>
+        <div className="vibe-spot" style={{top:'10%',width:'20%',height:'120%',background:`linear-gradient(90deg, transparent, #FFFF0010, #FFFF0020, #FFFF0010, transparent)`,animationDuration:'6s',animationDelay:'2s'}}/>
+      </div>);},
     },
     3: {
       css: `@keyframes wave-move{0%{transform:translateX(-100%) skewY(-2deg)}100%{transform:translateX(100%) skewY(2deg)}}.vibe-wave{position:absolute;width:200%;height:40%;animation:wave-move ease-in-out infinite alternate;pointer-events:none;border-radius:50%}`,
@@ -744,8 +763,18 @@ const VibeBackground = ({ activeVibe }) => {
       render: () => {const cols=['#FF69B4','#FFD700','#00F0FF','#39FF14','#FF003C','#9B59B6'];return(<div className="absolute inset-0">{[...Array(40)].map((_,i)=>(<div key={i} className="vibe-sparkle" style={{width:4+Math.random()*7,height:4+Math.random()*7,left:`${Math.random()*100}%`,top:`${Math.random()*100}%`,background:cols[i%6],boxShadow:`0 0 ${6+Math.random()*10}px ${cols[i%6]}80`,animationDuration:`${1+Math.random()*2}s`,animationDelay:`${Math.random()*2}s`}}/>))}</div>);},
     },
     5: {
-      css: `@keyframes ripple-expand{0%{transform:translate(-50%,-50%) scale(0.2);opacity:0.5}100%{transform:translate(-50%,-50%) scale(4);opacity:0}}.vibe-ripple{position:absolute;left:50%;top:60%;border-radius:50%;border:1px solid;animation:ripple-expand linear infinite;pointer-events:none}`,
-      render: () => (<div className="absolute inset-0">{[...Array(7)].map((_,i)=>(<div key={i} className="vibe-ripple" style={{width:150,height:150,borderColor:ac+'70',animationDuration:'4s',animationDelay:`${i*0.6}s`}}/>))}</div>),
+      css: `@keyframes laser-sweep{0%{transform:rotate(-60deg) scaleY(0.5);opacity:0.3}25%{opacity:0.8}50%{transform:rotate(60deg) scaleY(1);opacity:0.6}75%{opacity:0.8}100%{transform:rotate(-60deg) scaleY(0.5);opacity:0.3}}@keyframes strobe{0%,94%,96%,98%,100%{opacity:0}95%{opacity:0.15}97%{opacity:0.25}99%{opacity:0.1}}@keyframes floor-pulse{0%,100%{opacity:0.08}50%{opacity:0.25}}@keyframes kick-ring{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0.6}100%{transform:translate(-50%,-50%) scale(2.5);opacity:0}}.vibe-laser{position:absolute;transform-origin:50% 100%;animation:laser-sweep ease-in-out infinite;pointer-events:none}.vibe-strobe{position:absolute;inset:0;animation:strobe linear infinite;pointer-events:none}.vibe-floor{position:absolute;animation:floor-pulse ease-in-out infinite;pointer-events:none}.vibe-kick{position:absolute;left:50%;top:50%;border-radius:50%;animation:kick-ring ease-out infinite;pointer-events:none}`,
+      render: () => (<div className="absolute inset-0 overflow-hidden">
+        {/* Laser beams from ceiling */}
+        {[...Array(6)].map((_,i)=>(<div key={'l'+i} className="vibe-laser" style={{left:`${10+i*15}%`,top:0,width:2,height:'70%',background:`linear-gradient(to bottom, ${ac}90, ${ac}30, transparent)`,boxShadow:`0 0 8px ${ac}60, 0 0 20px ${ac}30`,animationDuration:`${2+i*0.5}s`,animationDelay:`${i*0.35}s`}}/>))}
+        {/* 4-on-the-floor kick rings */}
+        {[...Array(5)].map((_,i)=>(<div key={'k'+i} className="vibe-kick" style={{width:200,height:200,border:`2px solid ${ac}${['60','45','30','20','10'][i]}`,animationDuration:'1s',animationDelay:`${i*0.2}s`}}/>))}
+        {/* Warehouse floor grid */}
+        {[...Array(10)].map((_,i)=>(<div key={'fg'+i} className="vibe-floor" style={{left:0,right:0,top:`${i*10}%`,height:1,background:`linear-gradient(90deg, transparent 5%, ${ac}20 20%, ${ac}35 50%, ${ac}20 80%, transparent 95%)`,animationDuration:`${0.5}s`,animationDelay:`${i*0.05}s`}}/>))}
+        {[...Array(10)].map((_,i)=>(<div key={'fv'+i} className="vibe-floor" style={{top:0,bottom:0,left:`${i*10}%`,width:1,background:`linear-gradient(to bottom, transparent 5%, ${ac}15 20%, ${ac}25 50%, ${ac}15 80%, transparent 95%)`,animationDuration:'0.5s',animationDelay:`${i*0.05}s`}}/>))}
+        {/* Strobe flash */}
+        <div className="vibe-strobe" style={{background:'white',animationDuration:'4s'}}/>
+      </div>),
     },
     6: {
       css: `@keyframes scan-down{0%{top:-10%}100%{top:110%}}.vibe-scan{position:absolute;left:0;right:0;height:2px;animation:scan-down linear infinite;pointer-events:none}`,
@@ -756,8 +785,17 @@ const VibeBackground = ({ activeVibe }) => {
       render: () => (<div className="vibe-diag" style={{backgroundImage:`repeating-linear-gradient(45deg,transparent,transparent 60px,${ac}30 60px,${ac}50 100px,transparent 100px)`,backgroundSize:'200% 200%',animationDuration:'6s'}}/>),
     },
     8: {
-      css: `@keyframes orb-float{0%{transform:translate(0,0) scale(1);opacity:0.3}33%{transform:translate(30px,-50px) scale(1.3);opacity:0.5}66%{transform:translate(-20px,-30px) scale(0.8);opacity:0.2}100%{transform:translate(0,0) scale(1);opacity:0.3}}.vibe-orb{position:absolute;border-radius:50%;animation:orb-float ease-in-out infinite;pointer-events:none;filter:blur(20px)}`,
-      render: () => (<div className="absolute inset-0">{[...Array(8)].map((_,i)=>(<div key={i} className="vibe-orb" style={{width:80+Math.random()*100,height:80+Math.random()*100,left:`${5+Math.random()*85}%`,top:`${5+Math.random()*85}%`,background:`radial-gradient(${ac}70,${ac}20,${ac}00)`,animationDuration:`${5+Math.random()*5}s`,animationDelay:`${Math.random()*3}s`}}/>))}</div>),
+      css: `@keyframes djembe-ring{0%{transform:translate(-50%,-50%) scale(0.2);opacity:0.7;border-width:3px}100%{transform:translate(-50%,-50%) scale(3);opacity:0;border-width:1px}}@keyframes sun-breathe{0%,100%{transform:translate(-50%,-50%) scale(0.9);opacity:0.15}50%{transform:translate(-50%,-50%) scale(1.1);opacity:0.35}}@keyframes tribal-bar{0%,100%{transform:scaleY(0.4);opacity:0.3}33%{transform:scaleY(1);opacity:0.7}66%{transform:scaleY(0.6);opacity:0.5}}@keyframes heat-shimmer{0%{transform:translateY(0) scaleX(1)}50%{transform:translateY(-8px) scaleX(1.02)}100%{transform:translateY(0) scaleX(1)}}.vibe-djembe{position:absolute;left:50%;top:50%;border-radius:50%;border-style:solid;animation:djembe-ring ease-out infinite;pointer-events:none}.vibe-sun{position:absolute;left:50%;top:35%;border-radius:50%;animation:sun-breathe ease-in-out infinite;pointer-events:none}.vibe-tribal{position:absolute;bottom:0;animation:tribal-bar ease-in-out infinite;transform-origin:bottom;pointer-events:none}.vibe-shimmer{position:absolute;left:0;right:0;animation:heat-shimmer ease-in-out infinite;pointer-events:none}`,
+      render: () => {const warm=['#E67E22','#F39C12','#D35400','#E74C3C','#27AE60'];return(<div className="absolute inset-0 overflow-hidden">
+        {/* Sun glow */}
+        <div className="vibe-sun" style={{width:400,height:400,background:`radial-gradient(circle, ${ac}40, ${ac}15, transparent 70%)`,boxShadow:`0 0 80px ${ac}25`,animationDuration:'3s'}}/>
+        {/* Djembe pulse rings */}
+        {[...Array(6)].map((_,i)=>(<div key={'dj'+i} className="vibe-djembe" style={{width:180,height:180,borderColor:warm[i%5]+'60',animationDuration:`${1.5}s`,animationDelay:`${i*0.25}s`}}/>))}
+        {/* Tribal rhythm bars */}
+        {[...Array(20)].map((_,i)=>(<div key={'tb'+i} className="vibe-tribal" style={{left:`${3+i*4.8}%`,width:'3%',height:`${20+Math.random()*40}%`,background:`linear-gradient(to top, ${warm[i%5]}60, ${warm[i%5]}15)`,borderRadius:'2px 2px 0 0',animationDuration:`${0.6+Math.random()*0.4}s`,animationDelay:`${(i%3)*0.2}s`}}/>))}
+        {/* Heat shimmer waves */}
+        {[...Array(4)].map((_,i)=>(<div key={'sh'+i} className="vibe-shimmer" style={{top:`${20+i*18}%`,height:2,background:`linear-gradient(90deg, transparent, ${ac}25, ${ac}40, ${ac}25, transparent)`,animationDuration:`${2+i*0.5}s`,animationDelay:`${i*0.3}s`}}/>))}
+      </div>);},
     },
   };
   const anim = animations[activeVibe];
