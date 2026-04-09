@@ -34,6 +34,7 @@ export const useAudioDeck = (deckId = 'A') => {
   const animationFrameRef = useRef(null);
   const isConnectedRef = useRef(false);
   const outputNodeRef = useRef(null);
+  const isPlayingRef = useRef(false);
 
   // Create impulse response for reverb
   const createReverbImpulse = useCallback((context, duration = 2, decay = 2) => {
@@ -115,29 +116,30 @@ export const useAudioDeck = (deckId = 'A') => {
     try {
       sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
       
-      // Main chain: source -> bass -> mid -> treble -> filter -> gain -> analyser -> output
+      // Chain: source -> bass -> mid -> treble -> filter -> analyser -> gain -> output -> destination
+      // Analyser is PRE-gain so VU meters show signal level independent of volume
       sourceRef.current.connect(bassFilterRef.current);
       bassFilterRef.current.connect(midFilterRef.current);
       midFilterRef.current.connect(trebleFilterRef.current);
       trebleFilterRef.current.connect(filterNodeRef.current);
-      filterNodeRef.current.connect(gainNodeRef.current);
+      filterNodeRef.current.connect(analyserRef.current);
+      analyserRef.current.connect(gainNodeRef.current);
       
-      // Echo chain (parallel)
+      // Echo chain (parallel off gain)
       gainNodeRef.current.connect(delayNodeRef.current);
       delayNodeRef.current.connect(delayGainRef.current);
-      delayGainRef.current.connect(delayNodeRef.current); // Feedback
-      delayGainRef.current.connect(analyserRef.current);
+      delayGainRef.current.connect(delayNodeRef.current);
+      delayGainRef.current.connect(outputNodeRef.current);
 
-      // Reverb chain (parallel)
+      // Reverb chain (parallel off gain)
       gainNodeRef.current.connect(convolverRef.current);
       convolverRef.current.connect(reverbGainRef.current);
-      reverbGainRef.current.connect(analyserRef.current);
+      reverbGainRef.current.connect(outputNodeRef.current);
 
       // Dry signal
-      gainNodeRef.current.connect(analyserRef.current);
+      gainNodeRef.current.connect(outputNodeRef.current);
       
       // Final output
-      analyserRef.current.connect(outputNodeRef.current);
       outputNodeRef.current.connect(audioContextRef.current.destination);
       
       isConnectedRef.current = true;
@@ -153,19 +155,37 @@ export const useAudioDeck = (deckId = 'A') => {
 
   // Update analyser data
   const updateAnalyserData = useCallback(() => {
-    if (!analyserRef.current || !isPlaying) return;
+    if (!analyserRef.current) {
+      animationFrameRef.current = requestAnimationFrame(updateAnalyserData);
+      return;
+    }
+    if (!isPlayingRef.current) {
+      return;
+    }
 
     const frequencyData = new Uint8Array(analyserRef.current.frequencyBinCount);
     const timeData = new Uint8Array(analyserRef.current.frequencyBinCount);
-    
+
     analyserRef.current.getByteFrequencyData(frequencyData);
     analyserRef.current.getByteTimeDomainData(timeData);
-    
+
     setAnalyserData(frequencyData);
     setWaveformData(timeData);
-    
+
     animationFrameRef.current = requestAnimationFrame(updateAnalyserData);
-  }, [isPlaying]);
+  }, []);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+    if (isPlaying && !animationFrameRef.current) {
+      updateAnalyserData();
+    }
+    if (!isPlaying && animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+  }, [isPlaying, updateAnalyserData]);
 
   // Play station
   const playStation = useCallback(async (station) => {
@@ -202,6 +222,7 @@ export const useAudioDeck = (deckId = 'A') => {
       await audioRef.current.play();
       setIsPlaying(true);
       setCurrentStation(station);
+      if (gainNodeRef.current) gainNodeRef.current.gain.value = volume;
       updateAnalyserData();
       
     } catch (err) {
@@ -324,17 +345,14 @@ export const useAudioDeck = (deckId = 'A') => {
     };
   }, []);
 
-  // Start animation loop when playing
-  useEffect(() => {
-    if (isPlaying) {
-      updateAnalyserData();
-    }
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isPlaying, updateAnalyserData]);
+  const getAnalyser = useCallback(() => analyserRef.current, []);
+
+  const getFrequencyData = useCallback(() => {
+    if (!analyserRef.current) return null;
+    const data = new Uint8Array(analyserRef.current.frequencyBinCount);
+    analyserRef.current.getByteFrequencyData(data);
+    return data;
+  }, []);
 
   return {
     deckId,
@@ -363,7 +381,10 @@ export const useAudioDeck = (deckId = 'A') => {
     updateFilter,
     updatePitch,
     getOutputNode,
+    getAnalyser,
+    getFrequencyData,
     audioContext: audioContextRef.current,
+    analyserNode: analyserRef.current,
   };
 };
 

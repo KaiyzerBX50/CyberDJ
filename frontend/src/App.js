@@ -8,6 +8,64 @@ import { useRecorder } from "./hooks/useRecorder";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
 
+
+/* ======= ERA VIBES ======= */
+const VIBES = [
+  { id: 1, label: 'BOOM BAP', era: "'90s NYC", padColor: '#DAA520',
+    theme: { bg: 'radial-gradient(ellipse at 50% 0%, #1A1000 0%, #0D0800 50%, #050300 100%)', accent: '#DAA520', glow: '#FFD70060', overlay: 'linear-gradient(180deg, #DAA52008 0%, transparent 40%)' }},
+  { id: 2, label: 'HIP HOP', era: "Modern", padColor: '#9B59B6',
+    theme: { bg: 'radial-gradient(ellipse at 50% 0%, #1A0028 0%, #0A0014 50%, #050008 100%)', accent: '#9B59B6', glow: '#8E44AD60', overlay: 'linear-gradient(180deg, #9B59B608 0%, transparent 40%)' }},
+  { id: 3, label: 'DANCEHALL', era: "Caribbean", padColor: '#00FF41',
+    theme: { bg: 'radial-gradient(ellipse at 50% 0%, #001A00 0%, #000D00 50%, #000500 100%)', accent: '#00FF41', glow: '#00FF4160', overlay: 'linear-gradient(180deg, #FFD70008 0%, #FF003C05 50%, transparent 100%)' }},
+  { id: 4, label: 'DISCO', era: "'70s Funk", padColor: '#FF69B4',
+    theme: { bg: 'radial-gradient(ellipse at 50% 0%, #1A0020 0%, #100015 50%, #08000A 100%)', accent: '#FF69B4', glow: '#FF69B460', overlay: 'linear-gradient(180deg, #FFD70008 0%, #FF69B408 50%, transparent 100%)' }},
+  { id: 5, label: 'HOUSE', era: "Chicago", padColor: '#FF6600',
+    theme: { bg: 'radial-gradient(ellipse at 50% 0%, #1A0D00 0%, #0D0500 50%, #050200 100%)', accent: '#FF6600', glow: '#FF660060', overlay: 'linear-gradient(180deg, #FF660008 0%, transparent 40%)' }},
+  { id: 6, label: 'TECHNO', era: "Detroit", padColor: '#FF003C',
+    theme: { bg: 'radial-gradient(ellipse at 50% 0%, #1A0005 0%, #0D0003 50%, #080808 100%)', accent: '#FF003C', glow: '#FF003C50', overlay: 'linear-gradient(180deg, #FF003C06 0%, transparent 40%)' }},
+  { id: 7, label: 'REGGAETON', era: "Latin Fire", padColor: '#FF1493',
+    theme: { bg: 'radial-gradient(ellipse at 50% 0%, #1A0008 0%, #140005 50%, #080002 100%)', accent: '#FF1493', glow: '#FF149360', overlay: 'linear-gradient(180deg, #FF660008 0%, #FF149308 50%, transparent 100%)' }},
+  { id: 8, label: 'AFROBEATS', era: "Global Wave", padColor: '#E67E22',
+    theme: { bg: 'radial-gradient(ellipse at 50% 0%, #1A1200 0%, #0D0800 50%, #050300 100%)', accent: '#E67E22', glow: '#27AE6060', overlay: 'linear-gradient(180deg, #27AE6008 0%, #E67E2208 50%, transparent 100%)' }},
+];
+
+const playSampleSound = (audioCtx, type) => {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  if (type === 'HORN') {
+    const osc = audioCtx.createOscillator(); const osc2 = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(440, now); osc.frequency.linearRampToValueAtTime(480, now + 0.05);
+    osc2.type = 'square'; osc2.frequency.setValueAtTime(443, now);
+    gain.gain.setValueAtTime(0.25, now); gain.gain.setValueAtTime(0.25, now + 0.4); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+    osc.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(now); osc2.start(now); osc.stop(now + 0.7); osc2.stop(now + 0.7);
+  }
+  if (type === 'SIREN') {
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.linearRampToValueAtTime(1200, now + 0.4);
+    osc.frequency.linearRampToValueAtTime(600, now + 0.8); osc.frequency.linearRampToValueAtTime(1200, now + 1.2);
+    gain.gain.setValueAtTime(0.2, now); gain.gain.setValueAtTime(0.2, now + 1.0); gain.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
+    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 1.3);
+  }
+  if (type === 'DROP') {
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.6);
+    gain.gain.setValueAtTime(0.35, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.8);
+  }
+  if (type === 'AIRHORN') {
+    [0, 0.15, 0.30].forEach(offset => {
+      const osc = audioCtx.createOscillator(); const osc2 = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(820, now + offset);
+      osc2.type = 'sawtooth'; osc2.frequency.setValueAtTime(824, now + offset);
+      gain.gain.setValueAtTime(0, now + offset); gain.gain.linearRampToValueAtTime(0.2, now + offset + 0.02);
+      gain.gain.setValueAtTime(0.2, now + offset + 0.08); gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.12);
+      osc.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now + offset); osc2.start(now + offset); osc.stop(now + offset + 0.12); osc2.stop(now + offset + 0.12);
+    });
+  }
+};
+
 /* ======= VINYL TURNTABLE ======= */
 const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotation }) => {
   const c = deckId === 'A' ? '#00F0FF' : '#FF003C';
@@ -131,12 +189,25 @@ const SpectrumVisualizer = ({ deckAData, deckBData, isPlayingA, isPlayingB }) =>
 };
 
 /* ======= PIONEER KNOB ======= */
-const Knob = ({ label, value = 50, color = '#888', size = 36 }) => {
-  const rot = ((value / 100) * 270) - 135;
+const Knob = ({ label, value = 50, color = '#888', size = 36, onChange }) => {
+  const rot = ((Math.min(100, Math.max(0, value)) / 100) * 270) - 135;
+  const handleDragStart = (startY) => {
+    if (!onChange) return;
+    const startVal = value;
+    const onMove = (e) => {
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const delta = (startY - clientY) * 0.5;
+      onChange(Math.min(100, Math.max(0, startVal + delta)));
+    };
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+    document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); document.addEventListener('touchmove', onMove); document.addEventListener('touchend', onUp);
+  };
   return (
     <div className="flex flex-col items-center">
       <span className="text-[7px] font-mono text-white/45 uppercase tracking-wider">{label}</span>
-      <div className="relative" style={{ width: size, height: size }}>
+      <div className="relative" style={{ width: size, height: size, cursor: onChange ? 'ns-resize' : 'default' }}
+        onMouseDown={(e) => { e.preventDefault(); handleDragStart(e.clientY); }}
+        onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}>
         {[...Array(20)].map((_, i) => {
           const a = (i / 20) * 270 - 135;
           return <div key={i} className="absolute w-px h-1 rounded-full" style={{ top: '50%', left: '50%', background: a <= rot ? color : '#252525', transform: `rotate(${a}deg) translateY(-${size / 2 + 2}px)`, transformOrigin: 'center', boxShadow: a <= rot ? `0 0 2px ${color}` : 'none' }} />;
@@ -151,19 +222,37 @@ const Knob = ({ label, value = 50, color = '#888', size = 36 }) => {
 };
 
 /* ======= CROSSFADER ======= */
-const Crossfader = ({ value }) => (
-  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/8" data-testid="crossfader">
-    <span className="text-[8px] font-mono text-[#00F0FF] font-bold">A</span>
-    <div className="relative flex-1 h-5 rounded bg-black/60 border border-white/10">
-      <div className="absolute inset-y-0.5 left-1 right-1 rounded" style={{ background: 'linear-gradient(to right, #00F0FF25, transparent 30%, transparent 70%, #FF003C25)' }} />
-      <div className="absolute top-1/2 left-1/2 w-px h-3 -translate-y-1/2 bg-white/25" />
-      <div className="absolute top-1/2 -translate-y-1/2 w-8 h-4 rounded cursor-grab" style={{ left: `calc(${(value + 1) / 2 * 100}% - 16px)`, background: 'linear-gradient(to bottom, #555, #333)', boxShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-        <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 space-y-px"><div className="h-px bg-white/30" /><div className="h-px bg-white/30" /></div>
+const Crossfader = ({ value, onChange }) => {
+  const trackRef = useRef(null);
+  const handleInteraction = (clientX) => {
+    const track = trackRef.current;
+    if (!track || !onChange) return;
+    const rect = track.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    onChange(pct * 2 - 1);
+  };
+  const startDrag = (clientX) => {
+    handleInteraction(clientX);
+    const onMove = (e) => handleInteraction(e.touches ? e.touches[0].clientX : e.clientX);
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+    document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); document.addEventListener('touchmove', onMove); document.addEventListener('touchend', onUp);
+  };
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/8" data-testid="crossfader">
+      <span className="text-[8px] font-mono text-[#00F0FF] font-bold">A</span>
+      <div ref={trackRef} className="relative flex-1 h-5 rounded bg-black/60 border border-white/10 cursor-pointer"
+        onMouseDown={(e) => { e.preventDefault(); startDrag(e.clientX); }}
+        onTouchStart={(e) => startDrag(e.touches[0].clientX)}>
+        <div className="absolute inset-y-0.5 left-1 right-1 rounded pointer-events-none" style={{ background: 'linear-gradient(to right, #00F0FF25, transparent 30%, transparent 70%, #FF003C25)' }} />
+        <div className="absolute top-1/2 left-1/2 w-px h-3 -translate-y-1/2 bg-white/25 pointer-events-none" />
+        <div className="absolute top-1/2 -translate-y-1/2 w-8 h-4 rounded pointer-events-none" style={{ left: `calc(${(value + 1) / 2 * 100}% - 16px)`, background: 'linear-gradient(to bottom, #555, #333)', boxShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+          <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 space-y-px"><div className="h-px bg-white/30" /><div className="h-px bg-white/30" /></div>
+        </div>
       </div>
+      <span className="text-[8px] font-mono text-[#FF003C] font-bold">B</span>
     </div>
-    <span className="text-[8px] font-mono text-[#FF003C] font-bold">B</span>
-  </div>
-);
+  );
+};
 
 /* ======= CENTER MIXER STRIP ======= */
 const CenterMixer = ({ deckA, deckB }) => {
@@ -255,24 +344,30 @@ const CenterMixer = ({ deckA, deckB }) => {
 };
 
 /* ======= DECK PANEL ======= */
-const DeckPanel = ({ deck, deckId }) => {
+const DeckPanel = ({ deck, deckId, activeVibe, onVibeChange, onPlaySample }) => {
   const c = deckId === 'A' ? '#00F0FF' : '#FF003C';
   const [loopActive, setLoopActive] = useState(false);
-  const [activePads, setActivePads] = useState([]);
-  const [padMode, setPadMode] = useState('HOT CUE');
   const [keyLock, setKeyLock] = useState(false);
+  const [fxEcho, setFxEcho] = useState(0);
+  const [fxReverb, setFxReverb] = useState(0);
+  const [fxFilter, setFxFilter] = useState(50);
+  const [fxDryWet, setFxDryWet] = useState(50);
+  const [flashingSampler, setFlashingSampler] = useState(null);
   const bpm = deck.isPlaying ? Math.floor(85 + deck.analyserData.slice(0, 8).reduce((a, b) => a + b, 0) / 32) : null;
-  const [activeSampler, setActiveSampler] = useState(null);
   const elapsed = deck.isPlaying ? Math.floor(performance.now() / 1000) % 600 : 0;
   const keys = ['Am', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Bm', 'Ab'];
   const detectedKey = deck.isPlaying ? keys[Math.floor(deck.analyserData[10] / 32)] : null;
 
-  const padModes = ['HOT CUE', 'BEAT LOOP', 'SLIP LOOP', 'BEAT JUMP'];
+  const handleSampler = (s) => {
+    onPlaySample(s.label);
+    setFlashingSampler(s.id);
+    setTimeout(() => setFlashingSampler(null), 300);
+  };
 
   return (
-    <div className="flex-1 rounded-lg border p-2.5 flex flex-col gap-2 min-h-0 overflow-hidden" data-testid={`deck-panel-${deckId.toLowerCase()}`} style={{ background: 'linear-gradient(180deg, #131313, #0a0a0a)', borderColor: c + '25' }}>
+    <div className="flex-1 rounded-lg border p-2.5 flex flex-col gap-2 min-h-0 overflow-y-auto" data-testid={`deck-panel-${deckId.toLowerCase()}`} style={{ background: 'linear-gradient(180deg, #131313, #0a0a0a)', borderColor: c + '25' }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1.5">
           <div className={`w-2 h-2 rounded-full ${deck.isPlaying ? 'animate-pulse' : ''}`} style={{ background: deck.isPlaying ? '#39FF14' : '#333' }} />
           <span className="text-[10px] font-['Orbitron'] font-bold" style={{ color: c }}>DECK {deckId}</span>
@@ -304,20 +399,20 @@ const DeckPanel = ({ deck, deckId }) => {
       </div>
 
       {/* Transport */}
-      <div className="flex items-center justify-between gap-2">
-        <button data-testid={`cue-btn-${deckId.toLowerCase()}`} className="px-3 py-1.5 rounded text-[9px] font-bold bg-[#FF6600]/25 text-[#FF6600] border border-[#FF6600]/40 hover:bg-[#FF6600]/35">CUE</button>
+      <div className="flex items-center justify-between gap-2 shrink-0">
+        <button className="px-3 py-1.5 rounded text-[9px] font-bold bg-[#FF6600]/25 text-[#FF6600] border border-[#FF6600]/40 hover:bg-[#FF6600]/35">CUE</button>
         <button data-testid={`play-pause-${deckId.toLowerCase()}`} onClick={deck.togglePlayPause} disabled={!deck.currentStation}
           className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0"
           style={{ background: deck.isPlaying ? '#FF003C' : '#39FF14', boxShadow: `0 0 16px ${deck.isPlaying ? '#FF003C50' : '#39FF1450'}` }}>
           {deck.isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
         </button>
-        <button data-testid={`sync-btn-${deckId.toLowerCase()}`} className="px-3 py-1.5 rounded text-[9px] font-bold bg-[#00F0FF]/15 text-[#00F0FF] border border-[#00F0FF]/40 hover:bg-[#00F0FF]/25 flex items-center gap-1">
+        <button className="px-2.5 py-1.5 rounded text-[9px] font-bold flex items-center gap-1 bg-white/8 text-white/45 border border-white/10 hover:bg-white/12">
           <Zap className="w-2.5 h-2.5" />SYNC
         </button>
       </div>
 
       {/* Loop + Pitch */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 shrink-0">
         <div className="flex items-center gap-1 flex-1 p-1.5 rounded bg-black/25">
           <span className="text-[7px] text-white/35 mr-0.5">LOOP</span>
           <button onClick={() => setLoopActive(!loopActive)} className={`p-1 rounded ${loopActive ? 'bg-[#39FF14] text-black' : 'bg-white/8 text-white/40'}`}>
@@ -336,79 +431,63 @@ const DeckPanel = ({ deck, deckId }) => {
         </div>
       </div>
 
-      {/* Pad Mode Selector */}
-      <div className="flex gap-1">
-        {padModes.map(mode => (
-          <button key={mode} onClick={() => setPadMode(mode)}
-            className={`flex-1 py-1 rounded text-[7px] font-mono font-bold transition-all ${padMode === mode ? 'text-black' : 'bg-white/5 text-white/35 hover:bg-white/10'}`}
-            style={padMode === mode ? { background: c, boxShadow: `0 0 8px ${c}50` } : {}}>
-            {mode}
-          </button>
-        ))}
-      </div>
-
-      {/* Pads */}
-      <div className="grid grid-cols-4 gap-1 flex-1 min-h-0">
-        {[
-          { n: 1, color: '#FF003C' },
-          { n: 2, color: '#FF6600' },
-          { n: 3, color: '#FFD700' },
-          { n: 4, color: '#39FF14' },
-          { n: 5, color: '#00F0FF' },
-          { n: 6, color: '#0066FF' },
-          { n: 7, color: '#9900FF' },
-          { n: 8, color: '#FF00AA' },
-        ].map(({ n, color }) => (
-          <button key={n} data-testid={`pad-${n}-${deckId.toLowerCase()}`}
-            onClick={() => setActivePads(p => p.includes(n) ? p.filter(x => x !== n) : [...p, n])}
-            className="rounded text-xs font-bold transition-all flex items-center justify-center"
-            style={{
-              background: activePads.includes(n) ? color + '50' : color + '18',
-              border: `1px solid ${activePads.includes(n) ? color : color + '40'}`,
-              color: activePads.includes(n) ? '#fff' : color + '90',
-              boxShadow: activePads.includes(n) ? `0 0 10px ${color}40` : 'none',
-            }}>
-            {n}
-          </button>
-        ))}
+      {/* ERA VIBES */}
+      <div className="shrink-0 rounded-lg border border-white/10 bg-black/30 p-2">
+        <span className="text-[9px] font-['Orbitron'] tracking-[0.15em] text-white/70 block mb-1.5">ERA VIBES</span>
+        <div className="grid grid-cols-4 gap-1.5">
+          {VIBES.map(v => {
+            const isActive = activeVibe === v.id;
+            return (
+              <button key={v.id} onClick={() => onVibeChange(isActive ? null : v.id)}
+                className="py-2.5 px-1.5 rounded-md text-center transition-all"
+                style={{
+                  background: isActive ? v.padColor + '45' : v.padColor + '15',
+                  border: `1.5px solid ${isActive ? v.padColor : v.padColor + '35'}`,
+                  boxShadow: isActive ? `0 0 14px ${v.padColor}50, inset 0 0 8px ${v.padColor}20` : 'none',
+                }}>
+                <div className="text-[10px] font-bold font-['Orbitron'] tracking-wide" style={{ color: isActive ? '#fff' : v.padColor + '90' }}>{v.label}</div>
+                <div className="text-[8px] font-mono mt-0.5" style={{ color: isActive ? 'rgba(255,255,255,0.6)' : v.padColor + '50' }}>{v.era}</div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* FX Rack */}
       <div className="py-1.5 px-2 rounded bg-black/25 shrink-0">
-        <span className="text-[7px] text-white/30 block mb-0.5">FX RACK</span>
+        <span className="text-[9px] font-['Orbitron'] tracking-[0.1em] text-white/50 block mb-1">FX RACK</span>
         <div className="flex justify-around">
-          <Knob label="ECHO" value={0} color="#FFD700" size={28} />
-          <Knob label="REVERB" value={0} color="#FF6600" size={28} />
-          <Knob label="FILTER" value={50} color="#9900FF" size={28} />
-          <Knob label="DRY/WET" value={50} color="#39FF14" size={28} />
+          <Knob label="ECHO" value={fxEcho} color="#FFD700" size={28} onChange={setFxEcho} />
+          <Knob label="REVERB" value={fxReverb} color="#FF6600" size={28} onChange={setFxReverb} />
+          <Knob label="FILTER" value={fxFilter} color="#9900FF" size={28} onChange={setFxFilter} />
+          <Knob label="DRY/WET" value={fxDryWet} color="#39FF14" size={28} onChange={setFxDryWet} />
         </div>
       </div>
 
       {/* Sampler */}
       <div className="shrink-0">
-        <span className="text-[6px] text-white/25 block mb-0.5">SAMPLER</span>
+        <span className="text-[8px] text-white/30 block mb-0.5">SAMPLER</span>
         <div className="grid grid-cols-4 gap-1">
           {[
             { id: 1, label: 'HORN', color: '#FF6600' },
             { id: 2, label: 'SIREN', color: '#FF003C' },
             { id: 3, label: 'DROP', color: '#9900FF' },
             { id: 4, label: 'AIRHORN', color: '#FFD700' },
-          ].map(s => (
-            <button
-              key={s.id}
-              data-testid={`sampler-${s.id}-${deckId.toLowerCase()}`}
-              onClick={() => setActiveSampler(activeSampler === s.id ? null : s.id)}
-              className="py-2 rounded text-[7px] font-bold uppercase tracking-wider transition-all"
-              style={{
-                background: activeSampler === s.id ? s.color + '60' : s.color + '20',
-                border: `1px solid ${activeSampler === s.id ? s.color : s.color + '50'}`,
-                color: activeSampler === s.id ? '#fff' : s.color,
-                boxShadow: activeSampler === s.id ? `0 0 12px ${s.color}40` : 'none',
-              }}
-            >
-              {s.label}
-            </button>
-          ))}
+          ].map(s => {
+            const isFlashing = flashingSampler === s.id;
+            return (
+              <button key={s.id} onClick={() => handleSampler(s)}
+                className="py-2 rounded text-[7px] font-bold uppercase tracking-wider transition-all"
+                style={{
+                  background: isFlashing ? s.color + '80' : s.color + '20',
+                  border: `1px solid ${isFlashing ? s.color : s.color + '50'}`,
+                  color: isFlashing ? '#fff' : s.color,
+                  boxShadow: isFlashing ? `0 0 16px ${s.color}60` : 'none',
+                }}>
+                {s.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -447,8 +526,82 @@ const DeckPanel = ({ deck, deckId }) => {
           </div>
         )}
       </div>
+
+      {/* Station / Artist Info */}
+      <div className="flex-1 min-h-[60px] rounded-lg border border-white/5 bg-black/30 flex flex-col items-center justify-center px-3 py-2 gap-1 relative overflow-hidden">
+        {deck.currentStation ? (
+          <>
+            <div className="absolute inset-0 opacity-10" style={{ background: `radial-gradient(ellipse at 50% 100%, ${c}40, transparent 70%)` }} />
+            <div className="flex items-center gap-1.5 relative z-10">
+              <Radio className="w-3 h-3 animate-pulse" style={{ color: c }} />
+              <span className="text-[7px] font-['Orbitron'] tracking-[0.2em] text-white/40 uppercase">Now Playing</span>
+            </div>
+            <span className="text-[13px] font-['Orbitron'] font-bold tracking-wide truncate max-w-full text-center relative z-10" style={{ color: c, textShadow: `0 0 12px ${c}50` }}>
+              {deck.currentStation.name}
+            </span>
+            {deck.currentStation.tags && (
+              <span className="text-[9px] font-mono text-white/35 truncate max-w-full text-center relative z-10">
+                {typeof deck.currentStation.tags === 'string' ? deck.currentStation.tags : deck.currentStation.tags.join(' \u00B7 ')}
+              </span>
+            )}
+            {deck.isPlaying && bpm && (
+              <span className="text-[8px] font-mono text-white/25 relative z-10">{bpm} BPM \u00B7 {detectedKey}</span>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-1 opacity-30">
+            <Disc3 className="w-5 h-5 text-white/20" />
+            <span className="text-[8px] font-['Orbitron'] tracking-wider text-white/25">NO STATION LOADED</span>
+          </div>
+        )}
+      </div>
     </div>
   );
+};
+
+/* ======= VIBE BACKGROUND ANIMATIONS ======= */
+const VibeBackground = ({ activeVibe }) => {
+  if (!activeVibe) return null;
+  const vibe = VIBES.find(v => v.id === activeVibe);
+  if (!vibe) return null;
+  const ac = vibe.padColor;
+  const animations = {
+    1: {
+      css: `@keyframes dust-float{0%{transform:translateY(100vh) scale(0.3);opacity:0}30%{opacity:0.6}100%{transform:translateY(-20vh) scale(1);opacity:0}}.vibe-p{position:absolute;border-radius:50%;animation:dust-float linear infinite;pointer-events:none}`,
+      render: () => (<div className="absolute inset-0">{[...Array(20)].map((_,i)=>(<div key={i} className="vibe-p" style={{width:2+Math.random()*4,height:2+Math.random()*4,left:`${Math.random()*100}%`,background:`radial-gradient(${ac},${ac}00)`,boxShadow:`0 0 ${4+Math.random()*8}px ${ac}60`,animationDuration:`${6+Math.random()*8}s`,animationDelay:`${Math.random()*8}s`}}/>))}</div>),
+    },
+    2: {
+      css: `@keyframes pulse-ring{0%{transform:translate(-50%,-50%) scale(0.1);opacity:0.7;border-width:3px}100%{transform:translate(-50%,-50%) scale(3);opacity:0;border-width:1px}}.vibe-ring{position:absolute;left:50%;top:50%;border-radius:50%;border-style:solid;animation:pulse-ring ease-out infinite;pointer-events:none}`,
+      render: () => (<div className="absolute inset-0">{[...Array(4)].map((_,i)=>(<div key={i} className="vibe-ring" style={{width:200,height:200,borderColor:ac+'50',animationDuration:'4s',animationDelay:`${i}s`}}/>))}</div>),
+    },
+    3: {
+      css: `@keyframes wave-move{0%{transform:translateX(-100%) skewY(-2deg)}100%{transform:translateX(100%) skewY(2deg)}}.vibe-wave{position:absolute;width:200%;height:40%;animation:wave-move ease-in-out infinite alternate;pointer-events:none;border-radius:50%}`,
+      render: () => (<div className="absolute inset-0 overflow-hidden">{[...Array(3)].map((_,i)=>(<div key={i} className="vibe-wave" style={{top:`${30+i*20}%`,background:`linear-gradient(90deg,transparent,${ac}08,${ac}15,${ac}08,transparent)`,animationDuration:`${5+i*2}s`,animationDelay:`${i*0.5}s`}}/>))}</div>),
+    },
+    4: {
+      css: `@keyframes disco-sparkle{0%,100%{opacity:0.1;transform:scale(0.5)}50%{opacity:0.8;transform:scale(1.2)}}.vibe-sparkle{position:absolute;border-radius:50%;animation:disco-sparkle ease-in-out infinite;pointer-events:none}`,
+      render: () => {const cols=['#FF69B4','#FFD700','#00F0FF','#39FF14','#FF003C','#9B59B6'];return(<div className="absolute inset-0">{[...Array(25)].map((_,i)=>(<div key={i} className="vibe-sparkle" style={{width:3+Math.random()*5,height:3+Math.random()*5,left:`${Math.random()*100}%`,top:`${Math.random()*100}%`,background:cols[i%6],boxShadow:`0 0 ${6+Math.random()*10}px ${cols[i%6]}80`,animationDuration:`${1+Math.random()*2}s`,animationDelay:`${Math.random()*2}s`}}/>))}</div>);},
+    },
+    5: {
+      css: `@keyframes ripple-expand{0%{transform:translate(-50%,-50%) scale(0.2);opacity:0.5}100%{transform:translate(-50%,-50%) scale(4);opacity:0}}.vibe-ripple{position:absolute;left:50%;top:60%;border-radius:50%;border:1px solid;animation:ripple-expand linear infinite;pointer-events:none}`,
+      render: () => (<div className="absolute inset-0">{[...Array(5)].map((_,i)=>(<div key={i} className="vibe-ripple" style={{width:120,height:120,borderColor:ac+'40',animationDuration:'5s',animationDelay:`${i}s`}}/>))}</div>),
+    },
+    6: {
+      css: `@keyframes scan-down{0%{top:-10%}100%{top:110%}}.vibe-scan{position:absolute;left:0;right:0;height:2px;animation:scan-down linear infinite;pointer-events:none}`,
+      render: () => (<div className="absolute inset-0 overflow-hidden">{[...Array(6)].map((_,i)=>(<div key={i} className="vibe-scan" style={{background:`linear-gradient(90deg,transparent 5%,${ac}50 30%,${ac}90 50%,${ac}50 70%,transparent 95%)`,boxShadow:`0 0 8px ${ac}40`,animationDuration:`${2+i*0.5}s`,animationDelay:`${i*0.4}s`}}/>))}</div>),
+    },
+    7: {
+      css: `@keyframes diag-flow{0%{background-position:0% 0%}100%{background-position:200% 200%}}.vibe-diag{position:absolute;inset:0;animation:diag-flow linear infinite;pointer-events:none}`,
+      render: () => (<div className="vibe-diag" style={{backgroundImage:`repeating-linear-gradient(45deg,transparent,transparent 80px,${ac}08 80px,${ac}15 120px,transparent 120px)`,backgroundSize:'200% 200%',animationDuration:'8s'}}/>),
+    },
+    8: {
+      css: `@keyframes orb-float{0%{transform:translate(0,0) scale(1);opacity:0.3}33%{transform:translate(30px,-50px) scale(1.3);opacity:0.5}66%{transform:translate(-20px,-30px) scale(0.8);opacity:0.2}100%{transform:translate(0,0) scale(1);opacity:0.3}}.vibe-orb{position:absolute;border-radius:50%;animation:orb-float ease-in-out infinite;pointer-events:none;filter:blur(20px)}`,
+      render: () => (<div className="absolute inset-0">{[...Array(6)].map((_,i)=>(<div key={i} className="vibe-orb" style={{width:60+Math.random()*80,height:60+Math.random()*80,left:`${10+Math.random()*80}%`,top:`${10+Math.random()*80}%`,background:`radial-gradient(${ac}40,${ac}00)`,animationDuration:`${6+Math.random()*6}s`,animationDelay:`${Math.random()*4}s`}}/>))}</div>),
+    },
+  };
+  const anim = animations[activeVibe];
+  if (!anim) return null;
+  return (<><style>{anim.css}</style><div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">{anim.render()}</div></>);
 };
 
 /* ======= MAIN APP ======= */
@@ -456,12 +609,31 @@ function App() {
   const [isStationBrowserOpen, setIsStationBrowserOpen] = useState(false);
   const [activeDeck, setActiveDeck] = useState('A');
   const [crossfade, setCrossfade] = useState(0);
+  const [activeVibe, setActiveVibe] = useState(null);
+  const [masterVolume, setMasterVolume] = useState(0.75);
+  const sfxCtxRef = useRef(null);
   const [rotationA, setRotationA] = useState(0);
   const [rotationB, setRotationB] = useState(0);
 
   const deckA = useAudioDeck('A');
   const deckB = useAudioDeck('B');
   const recorder = useRecorder();
+
+  const currentTheme = activeVibe ? VIBES.find(v => v.id === activeVibe)?.theme : null;
+
+  const handleVibeChange = (vibeId) => {
+    setActiveVibe(vibeId);
+    if (vibeId) {
+      const vibe = VIBES.find(v => v.id === vibeId);
+      if (vibe) toast(`${vibe.label} \u2014 ${vibe.era}`, { duration: 1500 });
+    }
+  };
+
+  const handlePlaySample = (type) => {
+    if (!sfxCtxRef.current) sfxCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    if (sfxCtxRef.current.state === 'suspended') sfxCtxRef.current.resume();
+    playSampleSound(sfxCtxRef.current, type);
+  };
 
   useEffect(() => {
     let frame, last = performance.now();
@@ -496,13 +668,16 @@ function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#080808] text-white">
+    <div className="h-screen flex flex-col overflow-hidden text-white relative" style={{ background: currentTheme?.bg || '#080808', transition: 'background 0.6s ease' }}>
+      <VibeBackground activeVibe={activeVibe} />
+      {currentTheme && <div className="absolute inset-0 pointer-events-none z-0" style={{ background: currentTheme.overlay, transition: 'background 0.6s ease' }} />}
       {/* HEADER */}
-      <header className="flex items-center justify-between px-4 py-1.5 bg-black/80 border-b border-white/8 shrink-0" data-testid="app-header">
+      <header className="flex items-center justify-between px-4 py-1.5 bg-black/80 border-b border-white/8 shrink-0 relative z-10" data-testid="app-header">
         <div className="flex items-center gap-2">
           <Disc3 className="w-5 h-5 text-[#00F0FF]" />
           <Disc3 className="w-5 h-5 text-[#FF003C] -ml-3" />
           <span className="font-['Orbitron'] text-sm tracking-wider">CYBERDECK</span>
+          {activeVibe && (() => { const v = VIBES.find(x => x.id === activeVibe); return v ? (<span className="ml-1 px-2 py-0.5 rounded text-[8px] font-['Orbitron'] tracking-wider animate-pulse" style={{ background: v.padColor + '25', color: v.padColor, border: `1px solid ${v.padColor}40` }}>{v.label}</span>) : null; })()}
         </div>
         {(deckA.currentStation || deckB.currentStation) && (
           <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#FF003C]/15 border border-[#FF003C]/25">
@@ -521,7 +696,7 @@ function App() {
       </header>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col min-h-0 px-6 py-3 gap-3">
+      <div className="flex-1 flex flex-col min-h-0 px-6 py-3 gap-3 relative z-10">
         {/* TOP ROW: Turntables + Visualizer + Crossfader */}
         <div className="shrink-0 flex items-center justify-center gap-10">
           <VinylTurntable isPlaying={deckA.isPlaying} analyserData={deckA.analyserData} deckId="A" currentStation={deckA.currentStation} rotation={rotationA} />
@@ -536,9 +711,9 @@ function App() {
 
         {/* BOTTOM ROW: Deck A | Center Mixer | Deck B */}
         <div className="flex-1 flex gap-2 min-h-0 relative z-10">
-          <DeckPanel deck={deckA} deckId="A" />
+          <DeckPanel deck={deckA} deckId="A" activeVibe={activeVibe} onVibeChange={handleVibeChange} onPlaySample={handlePlaySample} />
           <CenterMixer deckA={deckA} deckB={deckB} />
-          <DeckPanel deck={deckB} deckId="B" />
+          <DeckPanel deck={deckB} deckId="B" activeVibe={activeVibe} onVibeChange={handleVibeChange} onPlaySample={handlePlaySample} />
         </div>
       </div>
 
