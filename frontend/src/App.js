@@ -101,38 +101,182 @@ const VinylTurntable = ({ isPlaying, analyserData, deckId, currentStation, rotat
 /* ======= SPECTRUM VISUALIZER ======= */
 const SpectrumVisualizer = ({ deckAData, deckBData, isPlayingA, isPlayingB }) => {
   const canvasRef = useRef(null);
+  const peaksRef = useRef(new Float32Array(80));
+  const peakDecayRef = useRef(new Float32Array(80));
+  const prevRef = useRef(new Float32Array(80));
+  const timeRef = useRef(0);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const { width, height } = canvas;
+    const W = canvas.width, H = canvas.height;
+    const BARS = 80;
+    const peaks = peaksRef.current;
+    const peakDecay = peakDecayRef.current;
+    const prev = prevRef.current;
     let frame;
+
+    const getColor = (i, v) => {
+      const t = i / BARS;
+      if (t < 0.25) return { r: 255, g: 0, b: 60 };
+      if (t < 0.45) return { r: 255 - (t - 0.25) * 1275, g: (t - 0.25) * 1200, b: 60 + (t - 0.25) * 975 };
+      if (t < 0.7) return { r: 0, g: 240, b: 255 };
+      return { r: (t - 0.7) * 190, g: 240 + (t - 0.7) * 50, b: 255 - (t - 0.7) * 850 };
+    };
+
     const draw = () => {
-      ctx.fillStyle = 'rgba(8,8,8,0.3)';
-      ctx.fillRect(0, 0, width, height);
+      timeRef.current += 0.016;
+      const t = timeRef.current;
+
+      // BG fade with subtle trail
+      ctx.fillStyle = 'rgba(4,4,8,0.25)';
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(0,240,255,0.04)';
+      ctx.lineWidth = 0.5;
+      for (let y = 0; y < H; y += 20) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      const midY = H * 0.55;
+      const barH = midY - 8;
+      const reflectH = H - midY - 2;
+
       if (!isPlayingA && !isPlayingB) {
-        ctx.strokeStyle = '#00F0FF18';
-        ctx.beginPath(); ctx.moveTo(0, height / 2); ctx.lineTo(width, height / 2); ctx.stroke();
+        // Idle: breathing center line
+        const breath = Math.sin(t * 1.5) * 0.3 + 0.5;
+        ctx.strokeStyle = `rgba(0,240,255,${breath * 0.15})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+
+        // Idle particles
+        for (let i = 0; i < 5; i++) {
+          const px = (Math.sin(t * 0.3 + i * 1.7) * 0.5 + 0.5) * W;
+          const py = midY + Math.sin(t * 0.8 + i) * 8;
+          ctx.fillStyle = `rgba(0,240,255,${0.15 + Math.sin(t + i) * 0.1})`;
+          ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI * 2); ctx.fill();
+        }
         frame = requestAnimationFrame(draw); return;
       }
-      const combined = new Uint8Array(64);
-      for (let i = 0; i < 64; i++) combined[i] = Math.max(deckAData[i * 2] || 0, deckBData[i * 2] || 0);
-      const bw = (width / 64) - 1.5;
-      for (let i = 0; i < 64; i++) {
-        const v = combined[i] / 255, bh = v * height * 0.9, x = i * (bw + 1.5), y = height - bh;
-        const col = i < 20 ? '#FF003C' : i < 42 ? '#00F0FF' : '#39FF14';
-        const g = ctx.createLinearGradient(x, height, x, y);
-        g.addColorStop(0, col + '30'); g.addColorStop(0.6, col + 'BB'); g.addColorStop(1, col);
-        ctx.fillStyle = g; ctx.fillRect(x, y, bw, bh);
-        ctx.fillStyle = col; ctx.fillRect(x, y - 2, bw, 1.5);
+
+      // Combine deck data
+      const combined = new Float32Array(BARS);
+      for (let i = 0; i < BARS; i++) {
+        const a = deckAData[Math.floor(i * deckAData.length / BARS)] || 0;
+        const b = deckBData[Math.floor(i * deckBData.length / BARS)] || 0;
+        const raw = Math.max(a, b) / 255;
+        // Smooth
+        prev[i] += (raw - prev[i]) * 0.35;
+        combined[i] = prev[i];
       }
-      ctx.strokeStyle = '#00F0FF50'; ctx.lineWidth = 1.5; ctx.beginPath();
-      const w = isPlayingA ? deckAData : deckBData;
-      for (let i = 0; i < w.length; i++) {
-        const x = (i / w.length) * width, y = ((w[i] - 128) / 128) * 25 + 22;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+
+      const bw = (W / BARS) - 1.2;
+      const gap = 1.2;
+
+      // === MAIN BARS ===
+      for (let i = 0; i < BARS; i++) {
+        const v = combined[i];
+        const h = v * barH;
+        const x = i * (bw + gap);
+        const y = midY - h;
+        const { r, g, b } = getColor(i, v);
+
+        // Glow behind bar
+        if (v > 0.3) {
+          ctx.shadowBlur = 12 + v * 18;
+          ctx.shadowColor = `rgba(${r},${g},${b},${v * 0.6})`;
+        }
+
+        // Main bar gradient
+        const grad = ctx.createLinearGradient(x, midY, x, y);
+        grad.addColorStop(0, `rgba(${r},${g},${b},0.15)`);
+        grad.addColorStop(0.3, `rgba(${r},${g},${b},0.6)`);
+        grad.addColorStop(0.7, `rgba(${r},${g},${b},0.9)`);
+        grad.addColorStop(1, `rgba(${r},${g},${b},1)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, y, bw, h);
+
+        // Hot top cap
+        ctx.fillStyle = `rgba(255,255,255,${0.3 + v * 0.5})`;
+        ctx.fillRect(x, y - 1.5, bw, 2);
+
+        ctx.shadowBlur = 0;
+
+        // === PEAK HOLD ===
+        if (v > peaks[i]) {
+          peaks[i] = v;
+          peakDecay[i] = 0;
+        } else {
+          peakDecay[i] += 0.008;
+          peaks[i] = Math.max(0, peaks[i] - peakDecay[i] * 0.02);
+        }
+        const peakY = midY - peaks[i] * barH;
+        ctx.fillStyle = `rgba(255,255,255,${0.5 + Math.sin(t * 4 + i) * 0.2})`;
+        ctx.fillRect(x, peakY - 2, bw, 2);
+
+        // === REFLECTION ===
+        const rh = h * 0.35;
+        const rGrad = ctx.createLinearGradient(x, midY + 2, x, midY + 2 + rh);
+        rGrad.addColorStop(0, `rgba(${r},${g},${b},0.25)`);
+        rGrad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = rGrad;
+        ctx.fillRect(x, midY + 2, bw, rh);
       }
-      ctx.stroke();
+
+      // === DUAL WAVEFORM OVERLAY ===
+      const drawWave = (data, color, off) => {
+        if (!data || data.length === 0) return;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.8;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = color;
+        ctx.beginPath();
+        for (let i = 0; i < data.length; i++) {
+          const x = (i / data.length) * W;
+          const y = ((data[i] - 128) / 128) * 18 + 16 + off;
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      };
+
+      if (isPlayingA) drawWave(deckAData, 'rgba(0,240,255,0.7)', 0);
+      if (isPlayingB) drawWave(deckBData, 'rgba(255,0,60,0.5)', 6);
+
+      // === CENTER DIVIDER LINE ===
+      const divGrad = ctx.createLinearGradient(0, 0, W, 0);
+      divGrad.addColorStop(0, 'rgba(255,0,60,0.6)');
+      divGrad.addColorStop(0.5, 'rgba(0,240,255,0.8)');
+      divGrad.addColorStop(1, 'rgba(57,255,20,0.6)');
+      ctx.strokeStyle = divGrad;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, midY + 1); ctx.lineTo(W, midY + 1); ctx.stroke();
+
+      // === FLOATING PARTICLES ===
+      const energy = combined.reduce((a, b) => a + b, 0) / BARS;
+      const pCount = Math.floor(energy * 12);
+      for (let i = 0; i < pCount; i++) {
+        const px = (Math.sin(t * (0.5 + i * 0.13) + i * 2.1) * 0.5 + 0.5) * W;
+        const py = (Math.cos(t * (0.7 + i * 0.09) + i * 1.3) * 0.5 + 0.5) * midY;
+        const { r, g, b } = getColor(Math.floor(px / W * BARS), 1);
+        const size = 1 + energy * 2;
+        ctx.fillStyle = `rgba(${r},${g},${b},${0.3 + energy * 0.4})`;
+        ctx.beginPath(); ctx.arc(px, py, size, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // === DB SCALE on right edge ===
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.font = '7px monospace';
+      ctx.textAlign = 'right';
+      for (let db = 0; db >= -48; db -= 12) {
+        const y = midY - ((-db / 48) * barH * -1 + barH);
+        ctx.fillText(`${db}dB`, W - 4, y + 3);
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W - 30, y); ctx.stroke();
+      }
+
       frame = requestAnimationFrame(draw);
     };
     draw();
@@ -140,16 +284,18 @@ const SpectrumVisualizer = ({ deckAData, deckBData, isPlayingA, isPlayingB }) =>
   }, [deckAData, deckBData, isPlayingA, isPlayingB]);
 
   return (
-    <div className="relative rounded-lg overflow-hidden border border-white/10 bg-[#080808]" data-testid="spectrum-visualizer">
+    <div className="relative rounded-lg overflow-hidden bg-[#040408]" style={{ border: '1px solid rgba(0,240,255,0.15)', boxShadow: '0 0 20px rgba(0,240,255,0.05), inset 0 0 30px rgba(0,0,0,0.5)' }} data-testid="spectrum-visualizer">
       <div className="absolute top-2 left-3 flex items-center gap-3 text-[9px] font-mono z-10">
         <span className={`flex items-center gap-1 ${isPlayingA ? 'text-[#00F0FF]' : 'text-white/20'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${isPlayingA ? 'bg-[#00F0FF] animate-pulse' : 'bg-white/15'}`} />DECK A
+          <span className={`w-1.5 h-1.5 rounded-full ${isPlayingA ? 'bg-[#00F0FF] animate-pulse' : 'bg-white/15'}`} style={isPlayingA ? { boxShadow: '0 0 6px #00F0FF' } : {}} />DECK A
         </span>
         <span className={`flex items-center gap-1 ${isPlayingB ? 'text-[#FF003C]' : 'text-white/20'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${isPlayingB ? 'bg-[#FF003C] animate-pulse' : 'bg-white/15'}`} />DECK B
+          <span className={`w-1.5 h-1.5 rounded-full ${isPlayingB ? 'bg-[#FF003C] animate-pulse' : 'bg-white/15'}`} style={isPlayingB ? { boxShadow: '0 0 6px #FF003C' } : {}} />DECK B
         </span>
       </div>
-      <canvas ref={canvasRef} width={700} height={150} className="w-full h-[120px]" />
+      <div className="absolute top-2 right-3 text-[7px] font-mono text-white/20 z-10">SPECTRUM</div>
+      <canvas ref={canvasRef} width={800} height={200} className="w-full h-[160px]" />
+      <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(to right, #FF003C60, #00F0FF80, #39FF1460)' }} />
     </div>
   );
 };
