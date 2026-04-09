@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import "@/App.css";
 import { motion } from "framer-motion";
-import { Disc3, Play, Pause, Zap, Lock, Unlock, RotateCcw, Mic, Radio } from "lucide-react";
+import { Disc3, Play, Pause, Zap, Lock, Unlock, RotateCcw, Radio, Flame, Keyboard } from "lucide-react";
 import { StationBrowser } from "./components/StationBrowser";
 import { useAudioDeck } from "./hooks/useAudioDeck";
-import { useRecorder } from "./hooks/useRecorder";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
 
@@ -239,8 +238,23 @@ const CenterMixer = ({ deckA, deckB }) => {
   }, [anyPlaying]);
   const wobble = (base, speed, phase, amp = 15) => anyPlaying ? Math.round(base + Math.sin(tick * speed + phase) * amp) : base;
 
+  const heat = Math.min(100, (levelA + levelB) * 50 + (levelA > 0.3 ? 15 : 0) + (levelB > 0.3 ? 15 : 0));
+
   return (
     <div className="flex flex-col gap-1.5 px-2 py-2 rounded-lg bg-[#0c0c0c] border border-white/8 w-[180px] shrink-0" data-testid="center-mixer">
+      {/* Heat Meter */}
+      <div className="flex items-center gap-1.5 px-1">
+        <Flame className="w-3 h-3" style={{ color: heat > 60 ? '#FF003C' : heat > 30 ? '#FFD700' : '#39FF14' }} />
+        <div className="flex-1 h-2 bg-black/60 rounded-full overflow-hidden border border-white/10">
+          <div className="h-full rounded-full transition-all duration-300" style={{
+            width: `${heat}%`,
+            background: heat > 60 ? 'linear-gradient(90deg, #FFD700, #FF003C)' : heat > 30 ? 'linear-gradient(90deg, #39FF14, #FFD700)' : '#39FF14',
+            boxShadow: heat > 60 ? '0 0 8px #FF003C80' : 'none',
+          }} />
+        </div>
+        <span className="text-[7px] font-mono" style={{ color: heat > 60 ? '#FF003C' : '#FFD700' }}>{Math.round(heat)}</span>
+      </div>
+
       {/* Master section — prominent */}
       <div className="text-center">
         <span className="text-[8px] font-['Orbitron'] text-white/40 uppercase tracking-widest">MASTER</span>
@@ -340,6 +354,22 @@ const DeckPanel = ({ deck, deckId, activeVibe, onVibeChange, onPlaySample }) => 
   const elapsed = deck.isPlaying ? Math.floor(performance.now() / 1000) % 600 : 0;
   const keys = ['Am', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Bm', 'Ab'];
   const detectedKey = deck.isPlaying ? keys[Math.floor(deck.analyserData[10] / 32)] : null;
+
+  const [tapTimes, setTapTimes] = useState([]);
+  const [tappedBpm, setTappedBpm] = useState(null);
+  const handleTap = () => {
+    const now = Date.now();
+    setTapTimes(prev => {
+      const recent = [...prev, now].filter(t => now - t < 3000);
+      if (recent.length >= 3) {
+        const intervals = [];
+        for (let i = 1; i < recent.length; i++) intervals.push(recent[i] - recent[i-1]);
+        const avg = intervals.reduce((a,b) => a+b, 0) / intervals.length;
+        setTappedBpm(Math.round(60000 / avg));
+      }
+      return recent;
+    });
+  };
 
   const handleSampler = (s) => {
     onPlaySample(s.label);
@@ -553,35 +583,35 @@ const VibeBackground = ({ activeVibe }) => {
   const animations = {
     1: {
       css: `@keyframes dust-float{0%{transform:translateY(100vh) scale(0.3);opacity:0}30%{opacity:0.6}100%{transform:translateY(-20vh) scale(1);opacity:0}}.vibe-p{position:absolute;border-radius:50%;animation:dust-float linear infinite;pointer-events:none}`,
-      render: () => (<div className="absolute inset-0">{[...Array(20)].map((_,i)=>(<div key={i} className="vibe-p" style={{width:2+Math.random()*4,height:2+Math.random()*4,left:`${Math.random()*100}%`,background:`radial-gradient(${ac},${ac}00)`,boxShadow:`0 0 ${4+Math.random()*8}px ${ac}60`,animationDuration:`${6+Math.random()*8}s`,animationDelay:`${Math.random()*8}s`}}/>))}</div>),
+      render: () => (<div className="absolute inset-0">{[...Array(40)].map((_,i)=>(<div key={i} className="vibe-p" style={{width:3+Math.random()*6,height:3+Math.random()*6,left:`${Math.random()*100}%`,background:`radial-gradient(${ac},${ac}00)`,boxShadow:`0 0 ${8+Math.random()*14}px ${ac}90`,animationDuration:`${5+Math.random()*7}s`,animationDelay:`${Math.random()*6}s`}}/>))}</div>),
     },
     2: {
       css: `@keyframes pulse-ring{0%{transform:translate(-50%,-50%) scale(0.1);opacity:0.7;border-width:3px}100%{transform:translate(-50%,-50%) scale(3);opacity:0;border-width:1px}}.vibe-ring{position:absolute;left:50%;top:50%;border-radius:50%;border-style:solid;animation:pulse-ring ease-out infinite;pointer-events:none}`,
-      render: () => (<div className="absolute inset-0">{[...Array(4)].map((_,i)=>(<div key={i} className="vibe-ring" style={{width:200,height:200,borderColor:ac+'50',animationDuration:'4s',animationDelay:`${i}s`}}/>))}</div>),
+      render: () => (<div className="absolute inset-0">{[...Array(6)].map((_,i)=>(<div key={i} className="vibe-ring" style={{width:250,height:250,borderColor:ac+'80',animationDuration:'3.5s',animationDelay:`${i*0.6}s`}}/>))}</div>),
     },
     3: {
       css: `@keyframes wave-move{0%{transform:translateX(-100%) skewY(-2deg)}100%{transform:translateX(100%) skewY(2deg)}}.vibe-wave{position:absolute;width:200%;height:40%;animation:wave-move ease-in-out infinite alternate;pointer-events:none;border-radius:50%}`,
-      render: () => (<div className="absolute inset-0 overflow-hidden">{[...Array(3)].map((_,i)=>(<div key={i} className="vibe-wave" style={{top:`${30+i*20}%`,background:`linear-gradient(90deg,transparent,${ac}08,${ac}15,${ac}08,transparent)`,animationDuration:`${5+i*2}s`,animationDelay:`${i*0.5}s`}}/>))}</div>),
+      render: () => (<div className="absolute inset-0 overflow-hidden">{[...Array(5)].map((_,i)=>(<div key={i} className="vibe-wave" style={{top:`${15+i*16}%`,background:`linear-gradient(90deg,transparent,${ac}30,${ac}50,${ac}30,transparent)`,animationDuration:`${4+i*1.5}s`,animationDelay:`${i*0.4}s`}}/>))}</div>),
     },
     4: {
       css: `@keyframes disco-sparkle{0%,100%{opacity:0.1;transform:scale(0.5)}50%{opacity:0.8;transform:scale(1.2)}}.vibe-sparkle{position:absolute;border-radius:50%;animation:disco-sparkle ease-in-out infinite;pointer-events:none}`,
-      render: () => {const cols=['#FF69B4','#FFD700','#00F0FF','#39FF14','#FF003C','#9B59B6'];return(<div className="absolute inset-0">{[...Array(25)].map((_,i)=>(<div key={i} className="vibe-sparkle" style={{width:3+Math.random()*5,height:3+Math.random()*5,left:`${Math.random()*100}%`,top:`${Math.random()*100}%`,background:cols[i%6],boxShadow:`0 0 ${6+Math.random()*10}px ${cols[i%6]}80`,animationDuration:`${1+Math.random()*2}s`,animationDelay:`${Math.random()*2}s`}}/>))}</div>);},
+      render: () => {const cols=['#FF69B4','#FFD700','#00F0FF','#39FF14','#FF003C','#9B59B6'];return(<div className="absolute inset-0">{[...Array(40)].map((_,i)=>(<div key={i} className="vibe-sparkle" style={{width:4+Math.random()*7,height:4+Math.random()*7,left:`${Math.random()*100}%`,top:`${Math.random()*100}%`,background:cols[i%6],boxShadow:`0 0 ${6+Math.random()*10}px ${cols[i%6]}80`,animationDuration:`${1+Math.random()*2}s`,animationDelay:`${Math.random()*2}s`}}/>))}</div>);},
     },
     5: {
       css: `@keyframes ripple-expand{0%{transform:translate(-50%,-50%) scale(0.2);opacity:0.5}100%{transform:translate(-50%,-50%) scale(4);opacity:0}}.vibe-ripple{position:absolute;left:50%;top:60%;border-radius:50%;border:1px solid;animation:ripple-expand linear infinite;pointer-events:none}`,
-      render: () => (<div className="absolute inset-0">{[...Array(5)].map((_,i)=>(<div key={i} className="vibe-ripple" style={{width:120,height:120,borderColor:ac+'40',animationDuration:'5s',animationDelay:`${i}s`}}/>))}</div>),
+      render: () => (<div className="absolute inset-0">{[...Array(7)].map((_,i)=>(<div key={i} className="vibe-ripple" style={{width:150,height:150,borderColor:ac+'70',animationDuration:'4s',animationDelay:`${i*0.6}s`}}/>))}</div>),
     },
     6: {
       css: `@keyframes scan-down{0%{top:-10%}100%{top:110%}}.vibe-scan{position:absolute;left:0;right:0;height:2px;animation:scan-down linear infinite;pointer-events:none}`,
-      render: () => (<div className="absolute inset-0 overflow-hidden">{[...Array(6)].map((_,i)=>(<div key={i} className="vibe-scan" style={{background:`linear-gradient(90deg,transparent 5%,${ac}50 30%,${ac}90 50%,${ac}50 70%,transparent 95%)`,boxShadow:`0 0 8px ${ac}40`,animationDuration:`${2+i*0.5}s`,animationDelay:`${i*0.4}s`}}/>))}</div>),
+      render: () => (<div className="absolute inset-0 overflow-hidden">{[...Array(8)].map((_,i)=>(<div key={i} className="vibe-scan" style={{background:`linear-gradient(90deg,transparent 5%,${ac}70 30%,${ac}BB 50%,${ac}70 70%,transparent 95%)`,boxShadow:`0 0 14px ${ac}60`,animationDuration:`${1.5+i*0.4}s`,animationDelay:`${i*0.3}s`}}/>))}</div>),
     },
     7: {
       css: `@keyframes diag-flow{0%{background-position:0% 0%}100%{background-position:200% 200%}}.vibe-diag{position:absolute;inset:0;animation:diag-flow linear infinite;pointer-events:none}`,
-      render: () => (<div className="vibe-diag" style={{backgroundImage:`repeating-linear-gradient(45deg,transparent,transparent 80px,${ac}08 80px,${ac}15 120px,transparent 120px)`,backgroundSize:'200% 200%',animationDuration:'8s'}}/>),
+      render: () => (<div className="vibe-diag" style={{backgroundImage:`repeating-linear-gradient(45deg,transparent,transparent 60px,${ac}30 60px,${ac}50 100px,transparent 100px)`,backgroundSize:'200% 200%',animationDuration:'6s'}}/>),
     },
     8: {
       css: `@keyframes orb-float{0%{transform:translate(0,0) scale(1);opacity:0.3}33%{transform:translate(30px,-50px) scale(1.3);opacity:0.5}66%{transform:translate(-20px,-30px) scale(0.8);opacity:0.2}100%{transform:translate(0,0) scale(1);opacity:0.3}}.vibe-orb{position:absolute;border-radius:50%;animation:orb-float ease-in-out infinite;pointer-events:none;filter:blur(20px)}`,
-      render: () => (<div className="absolute inset-0">{[...Array(6)].map((_,i)=>(<div key={i} className="vibe-orb" style={{width:60+Math.random()*80,height:60+Math.random()*80,left:`${10+Math.random()*80}%`,top:`${10+Math.random()*80}%`,background:`radial-gradient(${ac}40,${ac}00)`,animationDuration:`${6+Math.random()*6}s`,animationDelay:`${Math.random()*4}s`}}/>))}</div>),
+      render: () => (<div className="absolute inset-0">{[...Array(8)].map((_,i)=>(<div key={i} className="vibe-orb" style={{width:80+Math.random()*100,height:80+Math.random()*100,left:`${5+Math.random()*85}%`,top:`${5+Math.random()*85}%`,background:`radial-gradient(${ac}70,${ac}20,${ac}00)`,animationDuration:`${5+Math.random()*5}s`,animationDelay:`${Math.random()*3}s`}}/>))}</div>),
     },
   };
   const anim = animations[activeVibe];
@@ -600,9 +630,10 @@ function App() {
   const [rotationA, setRotationA] = useState(0);
   const [rotationB, setRotationB] = useState(0);
 
+  const [showShortcuts, setShowShortcuts] = useState(false);
+
   const deckA = useAudioDeck('A');
   const deckB = useAudioDeck('B');
-  const recorder = useRecorder();
 
   const currentTheme = activeVibe ? VIBES.find(v => v.id === activeVibe)?.theme : null;
 
@@ -636,14 +667,14 @@ function App() {
     const handler = (e) => {
       if (e.target.tagName === 'INPUT') return;
       if (e.key === ' ') { e.preventDefault(); (activeDeck === 'A' ? deckA : deckB).togglePlayPause(); }
+      if (e.key === '?') setShowShortcuts(s => !s);
       if (e.key === 'a') setActiveDeck('A');
       if (e.key === 'b') setActiveDeck('B');
       if (e.key === 's') setIsStationBrowserOpen(true);
-      if (e.key === 'r') recorder.isRecording ? recorder.stopRecording() : recorder.startRecording();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [activeDeck, deckA, deckB, recorder]);
+  }, [activeDeck, deckA, deckB]);
 
   const handleStation = async (s) => {
     try {
@@ -671,11 +702,6 @@ function App() {
           </div>
         )}
         <div className="flex items-center gap-3">
-          <button data-testid="record-btn" onClick={() => recorder.isRecording ? recorder.stopRecording() : recorder.startRecording()}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[9px] font-bold border ${recorder.isRecording ? 'bg-[#FF003C]/25 border-[#FF003C]/40 text-[#FF003C]' : 'bg-white/5 border-white/8 text-white/40 hover:text-white/70'}`}>
-            <Mic className="w-3 h-3" />
-            {recorder.isRecording ? <span className="animate-pulse">{recorder.formatDuration(recorder.recordingDuration)}</span> : 'REC'}
-          </button>
           <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/40 border border-white/10">
             <button onClick={() => setActiveDeck('A')}
               className="px-2 py-0.5 rounded text-[9px] font-['Orbitron'] font-bold transition-all"
@@ -694,6 +720,9 @@ function App() {
                 boxShadow: activeDeck === 'B' ? '0 0 8px #FF003C30' : 'none',
               }}>DECK B</button>
           </div>
+          <button onClick={() => setShowShortcuts(true)} className="p-1.5 rounded bg-white/5 border border-white/8 text-white/30 hover:text-white/60" title="Keyboard shortcuts">
+            <Keyboard className="w-3.5 h-3.5" />
+          </button>
           <StationBrowser onSelectStation={handleStation} currentStation={(activeDeck === 'A' ? deckA : deckB).currentStation} isOpen={isStationBrowserOpen} onOpenChange={setIsStationBrowserOpen} />
         </div>
       </header>
@@ -730,7 +759,30 @@ function App() {
         </div>
       )}
 
-      <Toaster position="bottom-right" />
+      {/* Shortcuts Overlay */}
+      {showShortcuts && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowShortcuts(false)}>
+          <div className="bg-[#0c0c0c] border border-white/15 rounded-xl p-6 max-w-sm" onClick={e => e.stopPropagation()}>
+            <h3 className="text-sm font-['Orbitron'] text-white/80 mb-4">KEYBOARD SHORTCUTS</h3>
+            <div className="space-y-2 text-[11px] font-mono">
+              {[
+                ['Space', 'Play / Pause active deck'],
+                ['A / B', 'Switch active deck'],
+                ['S', 'Open station browser'],
+                ['?', 'Toggle this overlay'],
+              ].map(([k, d]) => (
+                <div key={k} className="flex items-center gap-3">
+                  <kbd className="px-2 py-0.5 rounded bg-white/10 border border-white/15 text-white/70 min-w-[36px] text-center">{k}</kbd>
+                  <span className="text-white/50">{d}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setShowShortcuts(false)} className="mt-4 w-full py-1.5 rounded bg-white/5 border border-white/10 text-[10px] text-white/40 hover:text-white/60">CLOSE</button>
+          </div>
+        </div>
+      )}
+
+            <Toaster position="bottom-right" />
     </div>
   );
 }
